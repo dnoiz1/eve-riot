@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 26
+/svn/!svn/ver/12/trunk/ale
+END
+base.php
+K 25
+svn:wc:ra_dav:version-url
+V 34
+/svn/!svn/ver/8/trunk/ale/base.php
+END
+COPYING.LESSER
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/2/trunk/ale/COPYING.LESSER
+END
+COPYING
+K 25
+svn:wc:ra_dav:version-url
+V 33
+/svn/!svn/ver/2/trunk/ale/COPYING
+END
+eveonline.php
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/12/trunk/ale/eveonline.php
+END
+factory.php
+K 25
+svn:wc:ra_dav:version-url
+V 37
+/svn/!svn/ver/8/trunk/ale/factory.php
+END
+evecentral.php
+K 25
+svn:wc:ra_dav:version-url
+V 40
+/svn/!svn/ver/5/trunk/ale/evecentral.php
+END

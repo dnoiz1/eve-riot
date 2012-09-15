@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 29
+/svn/!svn/ver/2/trunk/ale/sql
+END
+cache.mysql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/2/trunk/ale/sql/cache.mysql.sql
+END
+cache.pgsql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/2/trunk/ale/sql/cache.pgsql.sql
+END
