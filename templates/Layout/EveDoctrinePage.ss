@@ -22,7 +22,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% control EveDoctrineShip %>
+                        <% control EveDoctrineShipsAugmented %>
                         <tr class="rowlink" rel="$Link">
                             <td><img src="http://image.eveonline.com/Render/{$Fitting.ShipID}_128.png" /></td>
                             <td><a href="$Link">$Fitting.ShipName $TechLevel</a></td>

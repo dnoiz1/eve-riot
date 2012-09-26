@@ -7,7 +7,7 @@ class EveDoctrine extends DataObject
         'Description' => 'HTMLText',
     );
 
-    static $has_many = array(
+    static $many_many = array(
         'EveDoctrineShip' => 'EveDoctrineShip'
     );
 
@@ -18,6 +18,27 @@ class EveDoctrine extends DataObject
     function getCMSFields()
     {
         $f = parent::getCMSFields();
+
+        $st = new ManyManyDataObjectManager(
+            $this,
+            'EveDoctrineShip',
+            'EveDoctrineShip',
+            array('Name' => 'Name', 'Description' => 'Description'),
+            'getCMSFields_forPopup'
+        );
+
+        $st->pageSize = 18;
+
+        $st->setAddTitle('Doctrine Ships');
+        $f->addFieldToTab('Root.EveDoctrineShip', $st);
+
+        return $f;
+    }
+
+    function getCMSFields_forPopup()
+    {
+        $f = parent::getCMSFields();
+        $f->removeByName('Eve Doctrine Ship');
         return $f;
     }
 
@@ -32,12 +53,21 @@ class EveDoctrine extends DataObject
         return $this->Title;
     }
 
+    function EveDoctrineShipsAugmented()
+    {
+        $ds = $this->EveDoctrineShip();
+        foreach($ds as $d) {
+            $d->setField('Link', $this->Link($d->ID));
+        }
+        return $ds;
+    }
+
     function canView()
     {
         if(Controller::CurrentPage()->ClassName == 'DoctrinePage') {
            return Controller::CurrentPage()->canView();
         }
-        return true;
+        return $this->canEdit();
     }
 
     function canCreate()

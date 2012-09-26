@@ -36,9 +36,10 @@ class EveApi extends DataObject {
 
     function isValid()
     {
-        $this->ale->setKey($this->KeyID, $this->vCode);
         $errors = array();
         try {
+            $this->ale->setKey($this->KeyID, $this->vCode);
+
             $info = $this->ale->Account->APIKeyInfo();
             // check  is account
             $info = $info->result->key->attributes();
@@ -90,10 +91,10 @@ class EveApi extends DataObject {
 
     function ApiSecurityGroups()
     {
-        if($this->isValid() !== true) return false;
-
         $groups = array();
         $rank = array(99 => 'Visitor');
+
+        if($this->isValid() !== true) return array('Groups' => $groups, 'Rank' => $rank);
 
         foreach($this->Characters() as $c) {
             // first check corp
@@ -110,6 +111,7 @@ class EveApi extends DataObject {
                     $r = $r->attributes();
                     // check for role based access (officer, director)
                     if($r['roleID'] == 1) {
+                        $groups[] = 'officers';
                         $groups[] = 'directors';
                         $rank[10] = 'Director';
                     }

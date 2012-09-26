@@ -35,11 +35,16 @@ class EveDoctrinePage_controller extends Page_controller
             if(!$this->doctrine) return $this->httpError(404);
 
             if($id = $request->param('ID')) {
+                /*
                 $this->doctrineship = EveDoctrineShip::get_one('EveDoctrineShip',
-                    sprintf("`ID` = '%s' AND `EveDoctrineID` = '%s'",
+                    sprintf("`ID` = '%d' AND `EveDoctrineID` = '%d'",
                     Convert::raw2sql($id), Convert::raw2sql($this->doctrine->ID))
                 );
+                */
+                // not very nice, but many to many's are messy to messy
+                $this->doctrineship = $this->doctrine->EveDoctrineShip(sprintf("EveDoctrineShip.ID  = '%d'", Convert::raw2sql($id)));
                 if(!$this->doctrineship) return $this->httpError(404);
+                $this->doctrineship = $this->doctrineship->First();
                 return $this->renderWith(array('EveDoctrinePage_doctrineship', 'Page'), array(
                     'Title' => sprintf("%s, %s", $this->Fitting()->ShipName(), $this->doctrine->Title)
                 ));

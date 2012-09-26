@@ -6,22 +6,24 @@ class EveDoctrineShip extends DataObject
         'Name' => 'Varchar(255)',
         'Reimbursment' => 'Double',
         'TechLevel' => 'Enum("T1, T2, Faction", "T2")',
-        'EFTTextBlock' => 'Text'
+        'EFTTextBlock' => 'Text',
+        'Description' => 'HTMLText'
     );
 
-    static $has_one = array(
+    static $belongs_many_many = array(
         'EveDoctrine' => 'EveDoctrine'
     );
 
     static $summary_fields = array(
         'Name',
-        'EveDoctrine.Title',
+//        'EveDoctrine.Title',
         'TechLevel',
+        'Description'
     );
 
     static $searchable_fields = array(
-        'EveDoctrine.Title',
         'Name',
+        'Description',
         'TechLevel'
     );
 
@@ -36,6 +38,26 @@ class EveDoctrineShip extends DataObject
             $f->insertAfter(new LiteralField('', sprintf("<p><h2>Please make sure these modules are using their current names</h2><pre>%s</pre></p>", Convert::raw2xml($text))), 'EFTTextBlock');
         }
 
+        $st = new ManyManyDataObjectManager(
+            $this,
+            'EveDoctrine',
+            'EveDoctrine',
+            array(
+                'Title' => 'Title'
+            ),
+            'getCMSFields_forPopup'
+        );
+
+        $st->setAddTitle('Doctrine');
+        $f->addFieldToTab('Root.EveDoctrine', $st);
+
+        return $f;
+    }
+
+    function getCMSFields_forPopup()
+    {
+        $f = parent::getCMSFields();
+        $f->removeByName('Eve Doctrine');
         return $f;
     }
 
@@ -52,14 +74,34 @@ class EveDoctrineShip extends DataObject
         return $this->fitting;
     }
 
-    function Link()
+    function Link($action = false)
     {
-        return $this->EveDoctrine()->Link($this->ID);
+        if($hasLink = $this->getField('Link')) return $hasLink;
+
+        $cp = Controller::CurrentPage();
+        if($a = $cp->urlParams['Action']) {
+            return $cp->Link(sprintf("%s/%s", $a, $this->ID));
+        }
+
+        return $cp->Link($action);
     }
 
-    function canView()
+   function canView()
     {
-        return $this->EveDoctrine()->canView();
+        if(Controller::CurrentPage()->ClassName == 'DoctrinePage') {
+           return Controller::CurrentPage()->canView();
+        }
+        return $this->canEdit();
+    }
+
+    function canCreate()
+    {
+        return $this->canEdit();
+    }
+
+    function canDelete()
+    {
+        return $this->canEdit();
     }
 
     function canEdit()
@@ -73,15 +115,4 @@ class EveDoctrineShip extends DataObject
         }
         return false;
     }
-
-    function canCreate()
-    {
-        return $this->canEdit();
-    }
-
-    function canDelete()
-    {
-        return $this->canEdit();
-    }
-
 }

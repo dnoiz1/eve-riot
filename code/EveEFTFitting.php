@@ -113,6 +113,10 @@ class EveEFTFitting extends ViewableData
 
                 if(strlen($s) == 0) continue;
 
+                if(($offline = strpos($s, ' /OFFLINE')) !== false) {
+                    $s = substr($s, 0, $offline);
+                }
+
                 if(strstr($s, ',')) {
                     list($s, $c) = explode(',', $s);
                     $ct = invTypes::get_one('invTypes', sprintf("typeName = '%s'", Convert::raw2sql($c)));
@@ -127,6 +131,11 @@ class EveEFTFitting extends ViewableData
                 }
                 if($t) {
                     if($ct) $t->setField('Charge', $ct);
+                    // regular strpos safety need not apply here
+                    if($offline) {
+                        $t->setField('typeName', sprintf("%s (offline)", $t->typeName));
+                        $t->setField('Offline', true);
+                    }
                     $res[] = $t;
                 } else {
                     $this->notfound[$s] = $s;

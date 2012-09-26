@@ -42,7 +42,8 @@ class EveMember extends DataObjectDecorator
                 // only work with API groups
                 if(!in_array($g->Code, array('rioters', 'officers', 'directors'))) continue;
                 // remove from groups
-                $membergroups->remove($g->ID);
+                $this->owner->Groups()->remove($g->ID);
+                $this->owner->Groups()->write();
             }
         }
 
