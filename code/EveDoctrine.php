@@ -44,7 +44,7 @@ class EveDoctrine extends DataObject
 
     function Link($action = false)
     {
-        $l = strtolower(str_replace(' ', '-', $this->Title));
+        $l = strtolower(str_replace(array(' ', '/', '.'), '-', $this->Title));
         return Controller::CurrentPage()->Link(sprintf('%s/%s', $l, $action));
     }
 

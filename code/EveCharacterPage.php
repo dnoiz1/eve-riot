@@ -50,9 +50,11 @@ JS
         if(!$m) return false;
 
         $chars = array();
+
         foreach($m->Characters() as $c) {
             $chars[$this->Link($c['characterID'])] = $c['name'];
         }
+
         return new DropDownField('character-selector', 'Pilot', $chars, $this->Link($this->Character()->ID()));
     }
 

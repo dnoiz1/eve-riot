@@ -31,7 +31,14 @@ class EveDoctrinePage_controller extends Page_controller
     function handleAction($request)
     {
         if($a = $request->param('Action')) {
-            $this->doctrine = EveDoctrine::get_one('EveDoctrine', sprintf("REPLACE(LOWER(TRIM(`Title`)), ' ', '-') = '%s'", Convert::raw2sql($a)));
+            //nasty :(
+            $sql = "REPLACE(
+                      REPLACE (
+                            REPLACE(LOWER(TRIM(`Title`)), ' ', '-'),
+                        '/', '-'),
+                    '.', '-') = '%s'";
+            $this->doctrine = EveDoctrine::get_one('EveDoctrine', sprintf($sql, Convert::raw2sql($a)));
+            //$this->doctrine = EveDoctrine::get_by_id(Convert);
             if(!$this->doctrine) return $this->httpError(404);
 
             if($id = $request->param('ID')) {
@@ -41,13 +48,14 @@ class EveDoctrinePage_controller extends Page_controller
                     Convert::raw2sql($id), Convert::raw2sql($this->doctrine->ID))
                 );
                 */
+
                 // not very nice, but many to many's are messy to messy
                 $this->doctrineship = $this->doctrine->EveDoctrineShip(sprintf("EveDoctrineShip.ID  = '%d'", Convert::raw2sql($id)));
                 if(!$this->doctrineship->Count()) return $this->httpError(404);
                 $this->doctrineship = $this->doctrineship->First();
-                return $this->renderWith(array('EveDoctrinePage_doctrineship', 'Page'), array(
-                    'Title' => sprintf("%s, %s", $this->Fitting()->ShipName(), $this->doctrine->Title)
-                ));
+
+                return $this->renderWith(array('EveDoctrinePage_doctrineship', 'Page'), $this->doctrineship);
+
             }
             return $this->renderWith(array('EveDoctrinePage_doctrine', 'Page'), array(
                 'Title' => $this->doctrine->Title,

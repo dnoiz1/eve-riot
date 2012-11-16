@@ -2,6 +2,7 @@
 
 class EveMember extends DataObjectDecorator
 {
+
     function extraStatics()
     {
         return array(
@@ -58,8 +59,14 @@ class EveMember extends DataObjectDecorator
 
     function Characters()
     {
+        if($this->owner->chars) return $this->owner->chars;
         $chars = array();
-        foreach($this->ApiKeys() as $a) $chars = array_merge((array)$a->Characters(), (array)$chars);
+        if($this->ApiKeys()) foreach($this->ApiKeys() as $a) {
+            foreach($a->Characters() as $c) {
+                $chars[] = $c;
+            }
+        }
+        $this->owner->chars = $chars;
         return $chars;
     }
 

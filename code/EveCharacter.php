@@ -5,7 +5,6 @@ require_once('../mysite/thirdparty/ale/factory.php');
 
 class EveCharacter extends ViewableData
 {
-    public $ale = false;
     public $api = false;
     public $characterID = false;
 
@@ -41,8 +40,7 @@ class EveCharacter extends ViewableData
             if($c['characterID'] == $characterID) {
                 $this->api = $api;
                 $this->characterID = (int)$c['characterID'];
-                $this->ale = $this->api->ale;
-                $this->ale->setCharacterID($this->characterID);
+                $this->api->ale->setCharacterID((int)$c['characterID']);
                 return true;
             }
         }
@@ -56,24 +54,24 @@ class EveCharacter extends ViewableData
 
     function _characterSheet()
     {
-        $this->ale->setCharacterID($this->characterID);
-        $xml = $this->ale->char->characterSheet();
+        $this->api->ale->setCharacterID($this->characterID);
+        $xml = $this->api->ale->char->characterSheet();
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
     }
 
     function _characterInfo()
     {
-        $this->ale->setCharacterID($this->characterID);
-        $xml = $this->ale->eve->characterInfo();
+        $this->api->ale->setCharacterID($this->characterID);
+        $xml = $this->api->ale->eve->characterInfo();
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
     }
 
     function _skillInTraining()
     {
-        $this->ale->setCharacterID($this->characterID);
-        $xml =  $this->ale->char->SkillInTraining();
+        $this->api->ale->setCharacterID($this->characterID);
+        $xml =  $this->api->ale->char->SkillInTraining();
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
     }

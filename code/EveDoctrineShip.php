@@ -80,13 +80,18 @@ class EveDoctrineShip extends DataObject
 
         $cp = Controller::CurrentPage();
         if($a = $cp->urlParams['Action']) {
-            return $cp->Link(sprintf("%s/%s", $a, $this->ID));
+            return $cp->Link(sprintf("%s/%d", $a, $this->ID));
         }
 
         return $cp->Link($action);
     }
 
-   function canView()
+    function Doctrine()
+    {
+        return Controller::CurrentPage()->doctrine;
+    }
+
+    function canView()
     {
         if(Controller::CurrentPage()->ClassName == 'DoctrinePage') {
            return Controller::CurrentPage()->canView();

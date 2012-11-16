@@ -76,11 +76,14 @@ class EveApi extends DataObject {
     function Characters()
     {
         if($this->isValid() !== true) return array();
+        $chars = array();
 
         $this->ale->setKey($this->KeyID, $this->vCode);
-        $info = $this->ale->Account->Characters();
-
-        $chars = array();
+        try {
+            $info = $this->ale->Account->Characters();
+        } catch(Exception $e) {
+            return $chars;
+        }
 
         foreach($info->result->characters as $c) {
             $chars[] = $c->attributes();
@@ -98,9 +101,15 @@ class EveApi extends DataObject {
 
         foreach($this->Characters() as $c) {
             // first check corp
-            if($c['corporationID'] != 98045653) continue;
-            $groups[] = 'rioters';
-            $rank[90] = 'Rioter';
+            if($c['corporationID'] == 98045653) {
+                $groups[] = 'rioters';
+                $rank[90] = 'Rioter';
+            } elseif($c['corporationID'] == 98140983) {
+                $groups[] = 'recruits';
+                $rank[95] = 'Recruit';
+            } else {
+                continue;
+            }
 
             $this->ale->setCharacterID($c['characterID']);
             try {
@@ -110,7 +119,7 @@ class EveApi extends DataObject {
                     //print_r($r);
                     $r = $r->attributes();
                     // check for role based access (officer, director)
-                    if($r['roleID'] == 1) {
+                    if($r['roleID'] == 1 && in_array('rioters', $groups)) {
                         $groups[] = 'officers';
                         $groups[] = 'directors';
                         $rank[10] = 'Director';
@@ -121,7 +130,9 @@ class EveApi extends DataObject {
                 foreach($titles as $t) {
                     //print_r($t);
                     $t = $t->attributes();
-                    if($t['titleName'] == 'Officer' || $t['titleName'] == 'Enforcer') {
+                    if(($t['titleName'] == 'Officer' || $t['titleName'] == 'Enforcer')
+                        && in_array('rioters', $groups)
+                    ) {
                         $groups[] = 'officers';
                         $rank[20] = 'Officer';
                     }

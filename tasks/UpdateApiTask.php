@@ -8,7 +8,7 @@ class UpdateApiTask extends ScheduledTask
         foreach($members as $m) {
             printf("%s (%s)\n", $m->FirstName, $m->NickName());
             foreach($m->Characters() as $c) {
-                $s = ($c['name'] == $m->NickName()) ? '-' : ' ';
+                $s = (strtolower($c['name']) == strtolower($m->NickName())) ? '-' : ' ';
                 printf("  %s %s\n", $s, $c['name']);
             }
             $m->UpdateGroupsFromAPI();
