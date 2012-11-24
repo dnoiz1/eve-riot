@@ -88,4 +88,10 @@ class Page_Controller extends ContentController {
         }
         return false;
     }
+
+    function NextTimer()
+    {
+       if(!$this->IsRioter()) return false;
+       if($t = EvePosTimer::get_one('EvePosTimer', 'TimerEnds > NOW()')) return $t->TimerEndsTimeStamp();
+    }
 }
