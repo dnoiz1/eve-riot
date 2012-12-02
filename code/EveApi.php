@@ -29,6 +29,8 @@ class EveApi extends DataObject {
         'Pilot' => 'Varchar(255)'
     );
 
+    static $default_sort = "Created ASC";
+
     function Pilot()
     {
         return ($m = Member::get_by_id('Member', (int)$this->MemberID)) ? $m->NickName() : 'Unassigned';

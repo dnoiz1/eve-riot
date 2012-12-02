@@ -11,23 +11,24 @@ class EvePosTimer extends DataObject
         'Defended'      => "Enum('Yes, No, N/A', 'No')",
         'Timer'         => "Enum('Shield, Final, None', 'Final')",
         'Owner'         => 'Varchar(100)',
-        'Type'          => "Enum('CTA, Tower, Station, iHub, TCU, SBU, Other, Roam', 'Tower')",
+        'Type'          => "Enum('CTA, Tower, Station, iHub, TCU, SBU, PoCo, Other, Roam', 'Tower')",
         'FormUpSolarSystem' => 'Int',
-        'FutherInfo'    => 'Text'
+        'FutherInfo'    => 'Text',
+        'Hidden'        => 'Boolean'
     );
 
     static $summary_fields = array(
 //        'TimerEnds',
         'Type',
-        'TargetSolarSystemName',
+        'TargetSystemName',
         'Moon',
         'Planet',
         'Timer',
     );
 
     static $casting = array(
-        'TargetSolarSystemName' => 'Varchar(100)',
-        'FormUpSolarSystemName' => 'Varchar(100)',
+        'TargetSystemName' => 'Varchar(100)'
+//        'FormUpSolarSystemName' => 'Varchar(100)',
     );
 
     static $searchable_fields = array(
@@ -68,14 +69,25 @@ class EvePosTimer extends DataObject
         return $f;
     }
 
-    function TargetSolarSystemName()
+    function TargetRegion()
     {
-        return mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->TargetSolarSystem)))->solarSystemName;
+        if($r = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->TargetSolarSystem)))) {
+            return $r->Region();
+        }
     }
 
-    function FormUpSolarSystemName()
+    function TargetSystem()
     {
-        return mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->ForumUpSolarSystem)))->solarSystemName;
+        return mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->TargetSolarSystem)));
+    }
+
+    function TargetSystemName() {
+        return ($ts = $this->TargetSystem()) ? $ts->solarSystemName : '';
+    }
+
+    function FormUpSystem()
+    {
+        return mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->ForumUpSolarSystem)));
     }
 
     /* no idea why SS_DateTime doesnt return a
@@ -105,14 +117,7 @@ class EvePosTimer extends DataObject
 
     function canEdit()
     {
-        $groups = array('administrators', 'directors', 'officers', 'fleet-commanders');
-
-        if($m = Member::CurrentUser()) {
-            foreach($groups as $g) {
-                if($m->inGroup($g)) return true;
-            }
-        }
-        return false;
+        return Permission::check('EVE_TIMERS');
     }
 
 }

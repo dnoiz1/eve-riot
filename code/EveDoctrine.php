@@ -82,6 +82,7 @@ class EveDoctrine extends DataObject
 
     function canEdit()
     {
+        /*
         $groups = array('administrators', 'directors', 'doctrine-editor');
 
         if($m = Member::CurrentUser()) {
@@ -90,5 +91,7 @@ class EveDoctrine extends DataObject
             }
         }
         return false;
+        */
+        return Permission::check('EVE_DOCTRINE');
     }
 }

@@ -4,6 +4,13 @@
 		<div class="content">
             $Content
 
+            <p>
+                Displaying Timers for Regions:
+                <% control Regions %>
+                    $regionName<% if Last %><% else %>,<% end_if %>
+                <% end_control %>
+            </p>
+
             <table class="full tborder timers">
                 <thead>
                     <tr>
@@ -25,9 +32,9 @@
                             <tr>
                                 <td class="countdown">$TimerEnds.Format(U)</td>
                                 <td>$TimerEnds.Format(H:i d/m/Y)</td>
-                                <td>$TargetSolarSystemName</td>
+                                <td>$TargetSystem.solarSystemName<div class="region">$TargetRegion.regionName</div></td>
                                 <td>
-                                    <% if Planet %>$Planet - $Moon<% else %>Station<% end_if %>
+                                    <% if Planet %>$Planet<% if Moon %> - $Moon<% end_if %><% else %>Station<% end_if %>
                                 </td>
                                 <td>$Type</td>
                                 <td>$Defended</td>
@@ -46,7 +53,7 @@
             <table class="full tborder timers">
                 <thead>
                     <tr>
-                        <th colspan="8">Past Timers</th>
+                        <th colspan="8">Past Timers in 48H</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,9 +71,9 @@
                             <tr>
                                 <td class="countdown">$TimerEnds.Format(U)</td>
                                 <td>$TimerEnds.Format(H:i d/m/Y)</td>
-                                <td>$TargetSolarSystemName</td>
+                                <td>$TargetSystem.solarSystemName<div class="region">$TargetRegion.regionName</div></td>
                                 <td>
-                                    <% if Planet %>$Planet - $Moon<% else %>Station<% end_if %>
+                                    <% if Planet %>$Planet<% if Moon %> - $Moon<% end_if %><% else %>Station<% end_if %>
                                 </td>
                                 <td>$Type</td>
                                 <td>$Defended</td>

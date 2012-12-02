@@ -31,7 +31,25 @@ class mapSolarSystems extends DataObject
         'securityClass'     => 'Varchar(2)'
     );
 
-    function Region()
+    static function get_by_region($regions, $name_or_id = 'id')
+    {
+        if(!$regions) return;
+
+        $field = ($name_or_id == 'id') ? 'regionID' : 'regionName';
+        $system_filter = '';
+
+        if(is_array($regions) && count($regions > 1)) {
+            array_walk($regions, array('Convert', 'raw2sql'));
+            $system_filter = sprintf("%s IN ('%s')", $field, implode($regions, "','"));
+        } else {
+            if(is_array($regions)) $regions = $regions[0];
+            $system_filter = sprintf("%s = '%s'", $field, Convert::raw2sql($regions));
+        }
+
+        return mapSolarSystems::get('mapSolarSystems', $system_filter);
+    }
+
+    public function Region()
     {
         return mapRegions::get_one('mapRegions', sprintf("regionID = %d", $this->regionID));
     }

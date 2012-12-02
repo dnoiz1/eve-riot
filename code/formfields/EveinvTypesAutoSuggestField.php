@@ -1,14 +1,16 @@
 <?php
 
-/* this is a field type that stores int solarsystemid
+/* this is a field type that stores int invTypesid
  * by displaying a textfield with autosuggest
  */
 
-class EveSolarSystemAutoSuggestField extends TextField
+class EveinvTypesAutoSuggestField extends TextField
 {
-    function __construct($name, $title = null, $value = null)
+    static $onChangeCallback = false;
+
+    function __construct($name, $title = null)
     {
-        return parent::__construct($name, $title, $value = null);
+        return parent::__construct($name, $title);
     }
 
     function Field()
@@ -32,7 +34,7 @@ class EveSolarSystemAutoSuggestField extends TextField
         $text_attributes = $attributes;
         $text_attributes['id'] = sprintf("%s_text", $this->id());
         $text_attributes['name'] = sprintf("%s_text", $this->name);
-        $text_attributes['value'] = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->Value())))->solarSystemName;
+        $text_attributes['value'] = invTypes::get_one('invTypes', sprintf("TypeID = %d", Convert::raw2sql($this->Value())))->TypeName;
         $text_attributes['type'] = 'text';
         $text_attributes['class'] .= ' text';
 
@@ -41,27 +43,41 @@ class EveSolarSystemAutoSuggestField extends TextField
         return $hidden_tag . $text_tag;
     }
 
-    function FieldHolder()
+    function OnChangeCallback($cb = null)
+    {
+        $this->onChangeCallback = $cb;
+        return  $this->onChangeCallback;
+    }
+
+    function JavaScript()
     {
         $id = $this->id();
-
-        $h = parent::FieldHolder();
-        $h .= <<<JS
-            <script type="text/javascript">
+        $cb = ($this->onChangeCallback) ? $this->onChangeCallback :
+            <<<JS
+                function(o) { jQuery('#{$id}').val(o.id); }
+JS;
+        return <<<JS
             jQuery(function(){
                 var options_{$id} = {
-                    script: function() { return '/eveStaticData/solarSystems/' + jQuery('#{$id}_text').val(); },
+                    script: function() { return '/eveStaticData/invTypes/' + jQuery('#{$id}_text').val(); },
                     json: true,
-                    maxentries: 6,
-                    callback: function(o) { jQuery('#{$id}').val(o.id); },
+                    maxentries: 10,
+                    callback: {$cb},
                     timeout: 10000000,
                     offsety: -13
                 }
 
                 var as_{$id} = new bsn.AutoSuggest('{$id}_text', options_{$id});
             });
-            </script>
 JS;
+
+    }
+
+    function FieldHolder()
+    {
+
+        $h = parent::FieldHolder();
+        $h .= sprintf('<script type="text/javascript">%s</script>', $this->JavaScript());
         return $h;
     }
 }

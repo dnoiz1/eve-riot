@@ -17,4 +17,6 @@ class mapRegions extends DataObject
         'factionID'     => 'Int',
         'radius'        => 'Double'
     );
+
+    static $default_sort = 'regionName ASC';
 }

@@ -92,6 +92,6 @@ class Page_Controller extends ContentController {
     function NextTimer()
     {
        if(!$this->IsRioter()) return false;
-       if($t = EvePosTimer::get_one('EvePosTimer', 'TimerEnds > NOW()')) return $t->TimerEndsTimeStamp();
+       return EvePosTimerPage::get_one('EvePosTimerPage')->NextTimer();
     }
 }

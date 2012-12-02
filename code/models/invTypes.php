@@ -26,8 +26,7 @@ class invTypes extends DataObject
 
     static function SkillGroups()
     {
-        $groups = invGroups::get('invGroups', "`categoryID` = '16' AND `published` = '1'", "`groupName`");
-        return $groups;
+        return invGroups::get('invGroups', "`categoryID` = '16' AND `published` = '1'", "`groupName`");
     }
 
     /*
@@ -72,5 +71,10 @@ class invTypes extends DataObject
             }
         }
         return true;
+    }
+
+    public function Group()
+    {
+        return invGroups::get_one('invGroups', sprintf("groupID = '%d'", $this->groupID));
     }
 }
