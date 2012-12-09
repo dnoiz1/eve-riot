@@ -92,8 +92,8 @@ class EveCreditProvider extends DataObject
 
     function Target()
     {
-        $c = new EveCharacter($this->CharacterID);
-        return ($this->Type == 'Chracter') ? $c->Name() : $c->Corporation();
+        $c = new EveCharacter($this->CharacterID, $this->EveApi());
+        return ($this->Type == 'Character') ? $c->Name() : $c->Corporation();
     }
 
     /* yay muckhole journal walking */
