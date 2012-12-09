@@ -1,7 +1,7 @@
 <?php
 
-class QueueScrapePosTimersJobTask extends BuildTask {
-
+class QueueScrapePosTimersJobTask extends BuildTask
+{
     protected $description = 'Queue the Scrape Pos Timers Job';
 
     public function run($request) {
@@ -11,7 +11,8 @@ class QueueScrapePosTimersJobTask extends BuildTask {
 }
 
 
-class ScrapePosTimersJob extends AbstractQueuedJob {
+class ScrapePosTimersJob extends AbstractQueuedJob
+{
 	public function __construct()
     {
         $this->repeat = 3600;
@@ -23,6 +24,11 @@ class ScrapePosTimersJob extends AbstractQueuedJob {
     {
 		return "Scheduled import of POS Timers";
 	}
+
+    public function getJobType()
+    {
+        return QueuedJob::IMMEDIATE;
+    }
 
     public function setup()
     {

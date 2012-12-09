@@ -25,3 +25,10 @@ class EveTimerAdmin extends ModelAdmin
     static $url_segment = 'timers';
     static $menu_title = 'POS Timers';
 }
+
+class EveCreditAdmin extends ModelAdmin
+{
+    static $managed_models = array('EveCreditProvider');
+    static $url_segment = 'credit-providers';
+    static $menu_title = 'Credit Provider';
+}

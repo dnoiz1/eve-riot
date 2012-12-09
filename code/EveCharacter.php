@@ -1,4 +1,3 @@
-
 <?php
 
 require_once('../mysite/thirdparty/ale/factory.php');

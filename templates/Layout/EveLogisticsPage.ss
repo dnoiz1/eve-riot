@@ -9,7 +9,7 @@
 		<div class="content">
             $Content
 
-           <% control OrderForm %>
+           <% control EveLogisticsForm %>
 
                 <form $FormAttributes>
 
@@ -61,4 +61,4 @@
 	</article>
 </div>
 
-<% include SideBar %>
+<% include EveLogisticsSideBar %>

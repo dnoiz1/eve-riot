@@ -8,6 +8,10 @@ class EveLogisticsPage extends Page
         'IskPerM3'                => 'Int'
     );
 
+    static $has_one = array(
+        'EveCreditProvider' => 'EveCreditProvider'
+    );
+
     function getCMSFields()
     {
         $f = parent::getCMSFields();
@@ -17,13 +21,13 @@ class EveLogisticsPage extends Page
             new FieldSet(
                 new EveSolarSystemAutoSuggestField('PriceCheckSolarSystemID', 'Price Check System'),
                 new NumericField('Markup', 'Mark Up (%)'),
-                new NumericField('IskPerM3', 'ISK Per')
+                new NumericField('IskPerM3', 'ISK Per'),
+                new DropDownField('EveCreditProviderID', 'Credit Provider', EveCreditProvider::get('EveCreditProvider')->map('ID', 'Name'))
             )
         );
 
         return $f;
     }
-
 
     function canEdit()
     {
@@ -33,7 +37,7 @@ class EveLogisticsPage extends Page
 
 class EveLogisticsPage_controller extends Page_controller
 {
-    function OrderForm()
+    function EveLogisticsForm()
     {
         $freight_fee = $this->IskPerM3;
 
@@ -46,6 +50,7 @@ class EveLogisticsPage_controller extends Page_controller
             }
 
             var freight_fee = {$freight_fee};
+            var item_search_text;
 
             var iskFormat = function(num) {
                 return (num.toFixed(2)+'').replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
@@ -156,6 +161,14 @@ class EveLogisticsPage_controller extends Page_controller
                 if(typeof item == 'undefined') return;
                 order_items.splice(item, 1);
                 updateOrderTable();
+            },
+
+            updateQty = function(){
+                q = parseInt(jQuery('#Form_EveLogisticsForm_Qty').val());
+                if(!isNaN(q) && current_item && q > 0) {
+                    jQuery('#PriceCheck span.qty').html(q);
+                    jQuery('#PriceCheck span.price-total').html(iskFormat(q * current_item.price));
+                 }
             };
 
             jQuery(function(){
@@ -163,13 +176,7 @@ class EveLogisticsPage_controller extends Page_controller
                     localStorage.setItem('order_items', JSON.stringify(order_items));
                 });
 
-                jQuery('#Form_EveLogisticsForm_Qty').keyup(function(){
-                    q = parseInt(jQuery(this).val());
-                    if(!isNaN(q) && current_item && q > 0) {
-                        jQuery('#PriceCheck span.qty').html(q);
-                        jQuery('#PriceCheck span.price-total').html(iskFormat(q * current_item.price));
-                    }
-                });
+                jQuery('#Form_EveLogisticsForm_Qty').keyup(updateQty);
 
                 jQuery('#ClearOrder').click(function(){
                     if(confirm('Are You sure you want to clear this order?')) {
@@ -177,6 +184,18 @@ class EveLogisticsPage_controller extends Page_controller
                         updateOrderTable();
                     }
                 });
+
+                /* //doesnt quite work with bsn.autosuggest
+                jQuery('#Form_EveLogisticsForm_Item_text').focus(function(){
+                    e = jQuery(this);
+                    item_search_text = e.val();
+                    e.val('');
+                });
+                jQuery('#Form_EveLogisticsForm_Item_text').blur(function(){
+                    e = jQuery(this);
+                    if(e.val().strip() == '') e.val(item_search_text);
+                });
+                */
 
                 jQuery('#AddToOrder').click(function(){
                     q = parseInt(jQuery('#Form_EveLogisticsForm_Qty').val());
@@ -195,7 +214,12 @@ class EveLogisticsPage_controller extends Page_controller
                             order_items.push(item);
                         }
                     }
+                    jQuery('#Form_EveLogisticsForm_Qty').val('1');
+                    updateQty();
                     updateOrderTable();
+                });
+
+                jQuery('#Form_EveLogisticsForm_action_submitOrder').click(function(){
                 });
 
                 updateOrderTable();
@@ -211,10 +235,15 @@ JS
             new NumericField('Qty', 'Quantity', 1)
         );
         $a = new FieldSet(
-            new FormAction('SubmitOrder', 'Submit Order')
+            new FormAction('submitOrder', 'Submit Order')
         );
 
         return new Form($this, 'EveLogisticsForm', $f, $a);
+    }
+
+    function submitOrder($data, $form)
+    {
+        var_dump($data);
     }
 
     public function priceCheck($request)
@@ -240,10 +269,10 @@ JS
         try {
             /* pfft GET ignores $data in RestfulService::request() */
             $req = $eveCentral->request('/api/marketstat?' . http_build_query($params));
-            $median = $req->xpath(sprintf('marketstat/type[@id=%d]/sell/median', $id));
+            $median = $req->xpath(sprintf('marketstat/type[@id=%d]/sell/median', $type->typeID));
             $median = (string)$median[0];
 
-             $price = ($this->Markup) ? ($median + ($median / 100 * (int)$this->Markup)) : $median;
+            $price = ($this->Markup) ? ($median + ($median / 100 * (int)$this->Markup)) : $median;
 
             /* dont round here, wait till after * qty */
             //$price = round($price, 2);
@@ -260,7 +289,9 @@ JS
 
         } catch(Exception $e) {
             //return $this->httpError(404);
-            throw $e;
+            //throw $e;
+            // really need better handling
+            return '{}';
         }
         return '{}';
     }

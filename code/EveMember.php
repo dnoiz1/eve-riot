@@ -99,7 +99,6 @@ class EveMember extends DataObjectDecorator
 
     function onBeforeWrite()
     {
-        /*
         $first = false;
         $nickname_as_toon = false;
         foreach($this->Characters() as $c) {
@@ -113,7 +112,6 @@ class EveMember extends DataObjectDecorator
         if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
         // still doesnt force toon names, but also doesnt fuckup when api does
         if(!$nickname_as_toon) $this->owner->Nickname = $this->owner->FirstName;
-        */
         return parent::onBeforeWrite();
     }
 }

@@ -45,8 +45,8 @@ class EveApi extends DataObject {
             $info = $this->ale->Account->APIKeyInfo();
             // check  is account
             $info = $info->result->key->attributes();
-            if($info['type'] != 'Account') {
-                $errors[] = array('Reason' => 'Key must be Account Key');
+            if($info['type'] != 'Account' && $info['type'] != 'Corporation') {
+                $errors[] = array('Reason' => 'Key must be Account or Corp Key');
             }
 
             // check no expire
@@ -72,6 +72,27 @@ class EveApi extends DataObject {
         } catch(Exception $e) {
             $errors[] = array('Reason' => 'Invalid Key');
         }
+        return (count($errors) > 0) ? new DataObjectSet($errors) : true;
+    }
+
+    function hasAccess($mask = 0)
+    {
+        /* need to call this from isValid, so prob  rework this */
+        $isValid = $this->isValid();
+        $errors = ($isValid !== true) ?  array() : array();
+
+        try {
+            $this->ale->setKey($this->KeyID, $this->vCode);
+            $info = $this->ale->Account->APIKeyInfo();
+            $info = $info->result->key->attributes();
+
+            if(!((int)$info['accessMask'] & $mask)) {
+                $errors[] = array('Reason' => 'Missing ' . $mask);
+            }
+        } catch (Exception $e) {
+            $errors[] = array('Reason' => 'Invalid Key');
+        }
+
         return (count($errors) > 0) ? new DataObjectSet($errors) : true;
     }
 
@@ -106,9 +127,14 @@ class EveApi extends DataObject {
             if($c['corporationID'] == 98045653) {
                 $groups[] = 'rioters';
                 $rank[90] = 'Rioter';
+
+            /*
+            // no more rint
             } elseif($c['corporationID'] == 98140983) {
                 $groups[] = 'recruits';
                 $rank[95] = 'Recruit';
+            */
+
             } else {
                 continue;
             }

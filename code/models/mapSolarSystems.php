@@ -38,7 +38,7 @@ class mapSolarSystems extends DataObject
         $field = ($name_or_id == 'id') ? 'regionID' : 'regionName';
         $system_filter = '';
 
-        if(is_array($regions) && count($regions > 1)) {
+        if(is_array($regions) && count($regions) > 1) {
             array_walk($regions, array('Convert', 'raw2sql'));
             $system_filter = sprintf("%s IN ('%s')", $field, implode($regions, "','"));
         } else {
