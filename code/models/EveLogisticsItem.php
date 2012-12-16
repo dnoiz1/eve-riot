@@ -1,16 +1,15 @@
 <?php
 
-class EveLogistsicsItem extends DataObject
+class EveLogisticsItem extends DataObject
 {
     static $db = array(
-        'Price' => 'Double'
+        'Price' => 'Decimal(15,2)',
+        'Name'  => 'Varchar(255)',
+        'Qty'   => 'Int'
     );
 
     static $has_one = array(
-        'invTypes' => 'invTypes'
-    );
-
-    static $belongs_one = array(
+        'invTypes' => 'invTypes',
         'EveLogisticsOrder' => 'EveLogisticsOrder'
     );
 }

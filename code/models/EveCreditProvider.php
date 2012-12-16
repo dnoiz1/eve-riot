@@ -5,7 +5,8 @@ class EveCreditProvider extends DataObject
     static $db = array(
         'Name'          => 'Varchar(255)',
         'Type'          => "Enum('Character, Corporation', 'Character')",
-        'CharacterID'   => 'Int'
+        'CharacterID'   => 'Int',
+        'Active'        => 'Boolean'
     );
 
     static $has_one = array(
@@ -92,8 +93,12 @@ class EveCreditProvider extends DataObject
 
     function Target()
     {
+        if(!$this->hasWalletAccess()) return false;
         $c = new EveCharacter($this->CharacterID, $this->EveApi());
-        return ($this->Type == 'Character') ? $c->Name() : $c->Corporation();
+        if($c) {
+            return ($this->Type == 'Character') ? $c->Name() : $c->Corporation();
+        }
+        return 'This Service is not currently Available, please try again later';
     }
 
     /* yay muckhole journal walking */

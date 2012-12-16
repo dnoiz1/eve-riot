@@ -28,7 +28,11 @@ class EvePermissions extends SiteTree implements PermissionProvider
             'EVE_LOGISTICS_CONFIGURE' => array(
                 'name'  => 'Edit Logistics Configuration',
                 'category' => 'Eve Permissions'
-            )
+            ),
+            'EVE_LOGISTICS_ADMIN' => array(
+                'name'  => 'Manage Logistics Orders',
+                'category' => 'Eve Permissions'
+            ),
         );
     }
 }

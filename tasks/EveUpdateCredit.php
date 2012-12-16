@@ -32,7 +32,7 @@ class EveUpdateCreditJob extends AbstractQueuedJob
 
     public function setup()
     {
-       $providers = EveCreditProvider::get('EveCreditProvider');
+       $providers = EveCreditProvider::get('EveCreditProvider', 'Active = 1');
        foreach($providers as $p) {
             $this->credit_providers[] = $p->ID;
        }
@@ -48,7 +48,7 @@ class EveUpdateCreditJob extends AbstractQueuedJob
             $transactions = $provider->APITransactions();
             $transactions->sort('RefID', 'DESC');
             foreach($transactions as $t) {
-                    if(!EveCreditRecord::get_one('EveCreditRecord', sprintf("RefID = '%d'", $t->RefID))) {
+               if(!EveCreditRecord::get_one('EveCreditRecord', sprintf("RefID = '%d'", $t->RefID))) {
                     $ecr = new EveCreditRecord();
                     $ecr->Amount                = $t->Amount;
                     $ecr->RefID                 = $t->RefID;

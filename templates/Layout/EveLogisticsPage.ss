@@ -1,7 +1,10 @@
 <div class="content-container">	
 	<article>
         <div class="feature-right">
-            <a class="bbtn">Past Orders</a>
+            <% if canManage %>
+                <a class="bbtn" href="{$Link}manage">Manage</a>
+            <% end_if %>
+            <a class="bbtn" href="{$Link}orders">My Orders</a>
         </div>
         <div class="feature-left">
     		<h1>$Title</h1>
@@ -21,6 +24,7 @@
                             <label class="left" for="Form_EveLogisticsForm_Add">Add To Order</label>
                             <div class="middleColumn">
                                 <a id="AddToOrder" class="bbtn" href="javascript:void(0)">+</a>
+                                <a id="AddFromEft" class="bbtn" href="javascript:void(0)">EFT</a>
 
                                 <span id="PriceCheck">
                                     <span>
@@ -44,6 +48,8 @@
                                 </tr>
                             </tbody>
                         </table>
+
+                        <input type="hidden" id="OrderItems" name="OrderItems" value="" />
 
                         $dataFieldByName(SecurityID)
                     </fieldset>

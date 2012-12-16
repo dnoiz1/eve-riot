@@ -2,7 +2,7 @@
 class EveCreditPage extends Page
 {
     public function CreditProviders() {
-        return EveCreditProvider::get('EveCreditProvider');
+        return EveCreditProvider::get('EveCreditProvider', 'Active = 1');
     }
 }
 

@@ -18,18 +18,28 @@ class EveCharacter extends ViewableData
             // look for the charid on the current member
             $m = Member::currentMember();
             if($m) {
-                foreach($m->ApiKeys() as $api) {
-                    if($this->findCharacter($characterID, $api)) return $this;
+                foreach($m->ApiKeys() as $a) {
+                    if($this->findCharacter($characterID, $a)) return $this;
                 }
             }
 
             // slow horse mode, should probably avoid this
             $apis = EveApi::get('EveApi');
-            foreach($apis as $api) {
-                    if($this->findCharacter($characterID, $api)) return $this;
+            foreach($apis as $a) {
+                if($this->findCharacter($characterID, $a)) return $this;
             }
         }
         return false;
+    }
+
+    function setCharacterID($id = null)
+    {
+        if(!$id) {
+             $id = $this->characterID;
+        } else {
+            $this->characterID = (int)$id;
+        }
+        if($this->api) $this->api->ale->setCharacterID($this->characterID);
     }
 
     function findCharacter($characterID, EveApi $api)
@@ -38,8 +48,7 @@ class EveCharacter extends ViewableData
         foreach($api->Characters() as $c) {
             if($c['characterID'] == $characterID) {
                 $this->api = $api;
-                $this->characterID = (int)$c['characterID'];
-                $this->api->ale->setCharacterID((int)$c['characterID']);
+                $this->setCharacterID($c['characterID']);
                 return true;
             }
         }
@@ -53,7 +62,7 @@ class EveCharacter extends ViewableData
 
     function _characterSheet()
     {
-        $this->api->ale->setCharacterID($this->characterID);
+        $this->setCharacterID();
         $xml = $this->api->ale->char->characterSheet();
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
@@ -61,7 +70,7 @@ class EveCharacter extends ViewableData
 
     function _characterInfo()
     {
-        $this->api->ale->setCharacterID($this->characterID);
+        $this->setCharacterID();
         $xml = $this->api->ale->eve->characterInfo();
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
@@ -69,7 +78,7 @@ class EveCharacter extends ViewableData
 
     function _skillInTraining()
     {
-        $this->api->ale->setCharacterID($this->characterID);
+        $this->setCharacterID();
         $xml =  $this->api->ale->char->SkillInTraining();
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;

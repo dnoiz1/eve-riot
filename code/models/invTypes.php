@@ -77,4 +77,36 @@ class invTypes extends DataObject
     {
         return invGroups::get_one('invGroups', sprintf("groupID = '%d'", $this->groupID));
     }
+
+    public function PriceCheck($useSystem = null)
+    {
+        /* really should extend RestfulService to create an eve central object, or figureout Ale or something */
+        // cached for 12 hours
+        $eveCentral = new RestfulService("http://api.eve-central.com", 12 * 3600);
+
+        $params = array('typeid' => $this->typeID);
+        if($useSystem) {
+            $params['usesystem'] = $useSystem;
+        }
+        $eveCentral->httpHeader('Accept: application/xml');
+        $eveCentral->httpHeader('Content-Type: application/xml');
+
+        try {
+            /* pfft GET ignores $data in RestfulService::request() */
+            $req = $eveCentral->request('/api/marketstat?' . http_build_query($params));
+            if(!$req) return false;
+            $median = $req->xpath(sprintf('marketstat/type[@id=%d]/sell/median', $this->typeID));
+            $median = (string)$median[0];
+            return $median;
+        } catch(Exception $e) {
+            return false;
+        }
+    }
+
+    public function realVolume()
+    {
+        $volume = eveStaticData::packagedSizes(preg_replace('/[^a-zA-Z0-9]/', '', $this->Group()->groupName));
+        if(!$volume) $volume = $this->volume;
+        return $volume;
+    }
 }

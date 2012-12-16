@@ -27,11 +27,15 @@ JS
         );
 
         $charid = $request->param('Action'); // ?: Session::get('CharacterID');
+
         $m = Member::currentUser();
 
         if(!$m->ApiKeys()) return $this->redirect('/profile/api-keys/');
 
-        if(!$m->Character($charid) || !($m->inGroup('directors') || $m->inGroup('administrators'))) {
+        if(!$charid) $charid = $m->CharacterID;
+
+//        if(!$charid || !$m->Character($charid) && !($m->inGroup('directors') || $m->inGroup('administrators'))) {
+        if(!$m->Character($charid) && !Permission::check('EVE_CHAR_SHEET')) {
             $this->char = new EveCharacter($m->CharacterID);
         } else {
             $char = new EveCharacter($charid);

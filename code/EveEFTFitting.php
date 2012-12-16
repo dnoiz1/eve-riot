@@ -118,14 +118,17 @@ class EveEFTFitting extends ViewableData
                 }
 
                 if(strstr($s, ',')) {
-                    list($s, $c) = explode(',', $s);
+                    list($s, $c) = explode(', ', $s);
                     $ct = invTypes::get_one('invTypes', sprintf("typeName = '%s'", Convert::raw2sql($c)));
                 }
 
-                if($idx == 5 && preg_match('#^(.*?) x\d+$#ims', $s, $m) !== false) {
+                if($idx == 5 && preg_match('#^(.*?) x(\d+)$#ims', $s, $m) !== false) {
 
                     $t = invTypes::get_one('invTypes', sprintf("typeName = '%s'", Convert::raw2sql($m[1])));
-                    if($t) $t->setField('typeName', $s);
+                    if($t) {
+                        $t->setField('typeName', $s);
+                        $t->setField('Qty', $m[2]);
+                    }
                 } else {
                     $t = invTypes::get_one('invTypes', sprintf("typeName = '%s'", Convert::raw2sql($s)));
                 }
