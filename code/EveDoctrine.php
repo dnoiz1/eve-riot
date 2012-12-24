@@ -3,8 +3,9 @@
 class EveDoctrine extends DataObject
 {
     static $db = array(
-        'Title' => 'Varchar(255)',
-        'Description' => 'HTMLText',
+        'Title'         => 'Varchar(255)',
+        'Description'   => 'HTMLText',
+        'Hidden'        => 'Boolean',
     );
 
     static $many_many = array(

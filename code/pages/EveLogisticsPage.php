@@ -54,7 +54,7 @@ class EveLogisticsPage_controller extends Page_controller
         $current_credit = ($this->EveCreditProvider()) ? $this->EveCreditProvider()->MemberBalance() : 0;
 
         $clear_order = (Session::get('clear_order_' . $this->ID)) ? 'true' : 'false';
-        Session::clear('clear_order_' . $this-ID);
+        Session::clear('clear_order_' . $this->ID);
 
         /* need to make local storage key unique to page id
          * will do it later, will make it more effort for other pages
@@ -379,6 +379,7 @@ class EveLogisticsPage_controller extends Page_controller
                                             jQuery(data).each(function(i,e){
                                                 added = false;
                                                 if(typeof e.qty == 'undefined') e.qty = 1;
+                                                e.qty = parseInt(e.qty);
                                                 e.volume = parseFloat(e.volume);
                                                 jQuery(order_items).each(function(k,v){
                                                     if(v.id == e.id) {
