@@ -127,7 +127,7 @@ class EveEFTFitting extends ViewableData
                     $t = invTypes::get_one('invTypes', sprintf("typeName = '%s'", Convert::raw2sql($m[1])));
                     if($t) {
                         $t->setField('typeName', $s);
-                        $t->setField('Qty', $m[2]);
+                        $t->setField('Qty', (int) $m[2]);
                     }
                 } else {
                     $t = invTypes::get_one('invTypes', sprintf("typeName = '%s'", Convert::raw2sql($s)));

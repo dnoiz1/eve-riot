@@ -3,11 +3,12 @@
 class EveDoctrineShip extends DataObject
 {
     static $db = array(
-        'Name' => 'Varchar(255)',
-        'Reimbursment' => 'Double',
-        'TechLevel' => 'Enum("T1, T2, Faction", "T2")',
-        'EFTTextBlock' => 'Text',
-        'Description' => 'HTMLText'
+        'Name'          => 'Varchar(255)',
+        'Reimbursment'  => 'Double',
+        'TechLevel'     => 'Enum("T1, T2, Faction", "T2")',
+        'EFTTextBlock'  => 'Text',
+        'Description'   => 'HTMLText',
+        'AdminNotes'    => 'Text'
     );
 
     static $belongs_many_many = array(
@@ -18,7 +19,9 @@ class EveDoctrineShip extends DataObject
         'Name',
 //        'EveDoctrine.Title',
         'TechLevel',
-        'Description'
+        //'Description',
+        'AdminNotes',
+        'LastEdited'
     );
 
     static $searchable_fields = array(
@@ -32,6 +35,8 @@ class EveDoctrineShip extends DataObject
     function getCMSFields()
     {
         $f = parent::getCMSFields();
+
+        $f->insertAfter(new DateTimeField_readonly('LastEdited', 'Last Updated'), 'Name');
 
         if($this->Fitting() && $this->Fitting()->NotFound()) {
             $text = implode($this->Fitting()->NotFound(), "\n");

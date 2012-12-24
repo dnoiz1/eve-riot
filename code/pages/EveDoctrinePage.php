@@ -7,7 +7,7 @@ class EveDoctrinePage extends Page
 
     function Doctrines()
     {
-        return EveDoctrine::get('EveDoctrine');
+        return EveDoctrine::get('EveDoctrine', "Hidden = 0");
     }
 
     function Doctrine()
@@ -36,7 +36,7 @@ class EveDoctrinePage_controller extends Page_controller
                       REPLACE (
                             REPLACE(LOWER(TRIM(`Title`)), ' ', '-'),
                         '/', '-'),
-                    '.', '-') = '%s'";
+                    '.', '-') = '%s' AND Hidden = 0";
             $this->doctrine = EveDoctrine::get_one('EveDoctrine', sprintf($sql, Convert::raw2sql($a)));
             //$this->doctrine = EveDoctrine::get_by_id(Convert);
             if(!$this->doctrine) return $this->httpError(404);

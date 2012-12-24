@@ -1,7 +1,7 @@
 <div class="content-container">	
 	<article>
         <div class="feature-right">
-            <a class="bbtn" href="{$Link}/orders">My Orders</a>
+            <a class="bbtn" href="{$Link}orders">My Orders</a>
             <a class="bbtn" href="$Link">Cart</a>
         </div>
         <div class="feature-left">
