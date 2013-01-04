@@ -2,7 +2,7 @@
 
 class QueueEveApiJobTask extends BuildTask
 {
-    protected $description = 'Queue the Security Group Membership and character cache Task';
+    protected $description = 'Queue the Security Group Membership and Character Cache Job';
 
     public function run($request) {
         $job = new EveApiJob();
@@ -56,7 +56,6 @@ class EveApiJob extends AbstractQueuedJob
         if($apis = $m->ApiKeys()) {
             foreach($apis as $a) {
                 foreach($a->Characters() as $c) {
-                    var_dump($c);
                     if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacetID = %d", $m->ID, $c['characterID']))) {
                         $cache = new EveMemberCharacterCache();
                         $cache->CharacterName = $c['name'];

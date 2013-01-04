@@ -10,7 +10,10 @@ class EveMember extends DataObjectDecorator
                 'CharacterID' => 'Int',
                 'JabberUser' => 'Varchar(255)',
                 'JabberPasswd' => 'Varchar(255)'
-            )
+            ),
+            'has_many' => array(
+                'EveMemberCharacterCache' => 'EveMemberCharacterCache'
+            ),
         );
     }
 
@@ -28,7 +31,6 @@ class EveMember extends DataObjectDecorator
             ));
         }
     }
-
 
     function updateGroupsFromAPI()
     {
