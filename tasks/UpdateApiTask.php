@@ -1,4 +1,6 @@
 <?php
+/*
+ DEPRECATED - Eve Update Task
 
 class UpdateApiTask extends ScheduledTask
 {
@@ -16,3 +18,4 @@ class UpdateApiTask extends ScheduledTask
         printf("[-] %s\n[-] Finished API Updates\n", Date('c'));
     }
 }
+*/

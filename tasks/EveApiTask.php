@@ -1,5 +1,4 @@
 <?php
-
 class QueueEveApiJobTask extends BuildTask
 {
     protected $description = 'Queue the Security Group Membership and Character Cache Job';
@@ -22,7 +21,7 @@ class EveApiJob extends AbstractQueuedJob
 
 	public function getTitle()
     {
-		return "Scheduled Job to update Security Group Mmebership and Character Cache from Eve API";
+		return "Scheduled Job to update Security Group Mebership and Character Cache from Eve API";
 	}
 
     public function getJobType()
@@ -47,36 +46,37 @@ class EveApiJob extends AbstractQueuedJob
         if($m) {
             printf("processing: %s\n", $m->NickName());
 
-        if($old = EveMemberCharacterCache::get('EveMemberCharacterCache', sprintf("MemberID = %d", $m->ID))) {
-            foreach($old as $o) {
-                $o->delete();
+            if($old = EveMemberCharacterCache::get('EveMemberCharacterCache', sprintf("MemberID = %d", $m->ID))) {
+                foreach($old as $o) {
+                    $o->delete();
+                }
             }
-        }
 
-        if($apis = $m->ApiKeys()) {
-            foreach($apis as $a) {
-                foreach($a->Characters() as $c) {
-                    if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacetID = %d", $m->ID, $c['characterID']))) {
-                        $cache = new EveMemberCharacterCache();
-                        $cache->CharacterName = $c['name'];
-                        $cache->CharacterID   = $c['characterID'];
-                        $cache->MemberID      = $m->ID;
-                        $cache->EveApiID      = $a->ID;
+            if($apis = $m->ApiKeys()) {
+                foreach($apis as $a) {
+                    foreach($a->Characters() as $c) {
+                        if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacetID = %d", $m->ID, $c['characterID']))) {
+                            $cache = new EveMemberCharacterCache();
+                            $cache->CharacterName = $c['name'];
+                            $cache->CharacterID   = $c['characterID'];
+                            $cache->MemberID      = $m->ID;
+                            $cache->EveApiID      = $a->ID;
 
-                        $cache->write();
-                    }
+                            $cache->write();
+                        }
 
-                    printf(" - %s\n", $c['name']);
+                        printf(" - %s\n", $c['name']);
 
-                    if(strtolower($m->NickName) == strtolower($c['name'])) {
-                        $m->CharacerID = $c['characterID'];
-                        $m->NickName   = $c['name'];
-                        $m->write();
+                        if(strtolower($m->NickName) == strtolower($c['name'])) {
+                            $m->CharacerID = $c['characterID'];
+                            $m->NickName   = $c['name'];
+                            $m->write();
+                        }
                     }
                 }
             }
-        }
-        $m->UpdateGroupsFromAPI();
+            // this seems kinda dumb, might move it into ^
+            $m->UpdateGroupsFromAPI();
         }
 
 		$this->currentStep++;
@@ -85,7 +85,7 @@ class EveApiJob extends AbstractQueuedJob
 
     		if($this->repeat) {
     	    	$job = new EveApiJob();
-    			//singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;

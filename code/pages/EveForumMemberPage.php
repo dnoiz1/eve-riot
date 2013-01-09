@@ -19,6 +19,6 @@ class EveForumMemberPage_controller extends EveCharacterPage_controller
 
     function MembersInCorp()
     {
-        return Group::get_by_code('rioters')->Members();
+        return Group::get_one('Group', "Code = 'rioters'")->Members();
     }
 }
