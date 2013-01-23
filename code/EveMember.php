@@ -9,12 +9,20 @@ class EveMember extends DataObjectDecorator
             'db' => array(
                 'CharacterID' => 'Int',
                 'JabberUser' => 'Varchar(255)',
-                'JabberPasswd' => 'Varchar(255)'
+                'JabberToken' => 'Varchar(255)'
             ),
             'has_many' => array(
                 'EveMemberCharacterCache' => 'EveMemberCharacterCache'
             ),
         );
+    }
+
+    function NickNameToJabberUser()
+    {
+        $nn = strtolower($this->owner->Nickname);
+        $nn = trim($nn);
+        $nn = str_replace(' ', '_', $nn);
+        return preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
     }
 
     function ApiKeys()
@@ -101,19 +109,29 @@ class EveMember extends DataObjectDecorator
 
     function onBeforeWrite()
     {
-        $first = false;
-        $nickname_as_toon = false;
-        foreach($this->Characters() as $c) {
-            if(!$first) $first = $c['name'];
-            if($c['name'] == $this->owner->Nickname) {
-                $this->owner->setField('CharacterID', (int)$c['characterID']);
-                $nickname_as_toon = true;
-                break;
+        if($this->owner->isChanged('PublicFieldsRaw')) {
+            $first = false;
+            $nickname_as_toon = false;
+            foreach($this->Characters() as $c) {
+                if(!$first) $first = $c['name'];
+                if($c['name'] == $this->owner->Nickname) {
+                    $this->owner->setField('CharacterID', (int)$c['characterID']);
+                    $nickname_as_toon = true;
+                    break;
+                }
             }
+            if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
+            // still doesnt force toon names, but also doesnt fuckup when api does
+            if(!$nickname_as_toon) $this->owner->Nickname = $this->owner->FirstName;
+
+            $this->owner->JabberUser = $this->NickNameToJabberUser();
         }
-        if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
-        // still doesnt force toon names, but also doesnt fuckup when api does
-        if(!$nickname_as_toon) $this->owner->Nickname = $this->owner->FirstName;
+
+        if($this->owner->isChanged('NumVisit')) {
+            $gen = new RandomGenerator();
+            $this->owner->JabberToken = $gen->generateHash('sha1');
+        }
+
         return parent::onBeforeWrite();
     }
 }

@@ -20,6 +20,18 @@ class invTypes extends DataObject
         'iconID' => 'Int'
     );
 
+    static function meetsPrereqs($TypeIDs, $skillMap)
+    {
+        if(!$TypeIDs || !skillMap) return false;
+        if(is_array($TypeIDs)) {
+            array_walk($TypeIDs, array('Convert', 'raw2sql'));
+            $filter = sprintf("typeID IN ('%s')", implode($TypeIDs, "','"));
+        } else {
+            $filter = sprintf("typeID = %d", TypeIDs);
+        }
+        // phat sql here for prereqs
+    }
+
     /*
      * this is fucked.
      */
@@ -61,6 +73,7 @@ class invTypes extends DataObject
 
     public function canUse()
     {
+        return false;
         $p = $this->prereqs();
         $m = Member::currentUser();
         if(!$p) return true;

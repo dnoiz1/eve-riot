@@ -57,6 +57,7 @@ class EveDoctrinePage_controller extends Page_controller
                 return $this->renderWith(array('EveDoctrinePage_doctrineship', 'Page'), $this->doctrineship);
 
             }
+
             return $this->renderWith(array('EveDoctrinePage_doctrine', 'Page'), array(
                 'Title' => $this->doctrine->Title,
                 'Content' => $this->doctrine->Description

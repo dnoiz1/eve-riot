@@ -24,7 +24,7 @@ class EveDoctrine extends DataObject
             $this,
             'EveDoctrineShip',
             'EveDoctrineShip',
-            array('Name' => 'Name', 'Description' => 'Description'),
+            array('Name' => 'Name', 'AdminNotes' => 'AdminNotes'),
             'getCMSFields_forPopup'
         );
 
