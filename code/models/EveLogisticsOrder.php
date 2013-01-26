@@ -22,6 +22,11 @@ class EveLogisticsOrder extends DataObject
         return DB::Query(sprintf("SELECT SUM(Price) FROM EveLogisticsItem WHERE EveLogisticsOrderID = %d LIMIT 1", $this->ID))->value();
     }
 
+    function EveCreditRecord()
+    {
+        return EveCreditRecord::get_one('EveCreditRecord', sprintf("RefID = '%d%d'", $this->EveLogisticsPage()->ID, $this->ID));
+    }
+
     public function onAfterWrite()
     {
         if($m = Member::CurrentUser()) {

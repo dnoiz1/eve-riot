@@ -6,7 +6,7 @@ class EveMemberJabberPage extends Page
 
 class EveMemberJabberPage_controller extends Page_controller
 {
-
+/*
     function JabberForm()
     {
         $m = Member::currentUser();
@@ -63,6 +63,7 @@ class EveMemberJabberPage_controller extends Page_controller
         Director::redirectBack();
 
     }
+*/
 }
 
 
