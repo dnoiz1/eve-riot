@@ -9,11 +9,15 @@ class EveMember extends DataObjectDecorator
             'db' => array(
                 'CharacterID' => 'Int',
                 'JabberUser' => 'Varchar(255)',
-                'JabberToken' => 'Varchar(255)'
+                'JabberToken' => 'Varchar(255)',
+                'JabberAutoConnect' => 'Boolean',
             ),
             'has_many' => array(
                 'EveMemberCharacterCache' => 'EveMemberCharacterCache'
             ),
+            'defaults' => array(
+                'JabberAutoConnect' => 1
+            )
         );
     }
 
@@ -62,7 +66,7 @@ class EveMember extends DataObjectDecorator
         if($membergroups) foreach($membergroups as $g) {
             if(!in_array($g->Code, $groups)) {
                 // only work with API groups
-                if(!in_array($g->Code, array('rioters', 'officers', 'directors'))) continue;
+                if(in_array($g->Code, array('administrators'))) continue;
                 // remove from groups
                 $this->owner->Groups()->remove($g->ID);
                 $this->owner->Groups()->write();
@@ -70,7 +74,9 @@ class EveMember extends DataObjectDecorator
         }
 
         foreach($groups as $g) {
-            if(!$this->owner->inGroup($g)) $this->owner->addToGroupByCode($g);
+            if(!$this->owner->inGroup($g)) {
+                Group::get_by_id('Group', (int)$g)->Members()->add($this->owner);
+            }
         }
 
         ksort($ranks);

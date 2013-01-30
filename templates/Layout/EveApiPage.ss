@@ -6,9 +6,12 @@
 
             <p>
                 <label>Active Groups:</label>
-                <% control Groups %>
-                    $Title<% if last %><% else %>, <% end_if %>
-                <% end_control %>
+
+                <% if CurrentMember.Groups %>
+                    <% control CurrentMember.Groups %>
+                        $Title<% if last %><% else %>, <% end_if %>
+                    <% end_control %>
+                <% end_if %>
             </p>
            <table class="full tborder">
                 <thead>

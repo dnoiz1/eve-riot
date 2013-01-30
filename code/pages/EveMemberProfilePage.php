@@ -2,13 +2,11 @@
 class EveProfilePage extends MemberProfilePage implements PermissionProvider {
     function Children()
     {
-        if($m = Member::currentUser()) {
-            if(!$m->inGroup('rioters')) {
-                $apipage = SiteTree::get_one('EveApiPage', "`Status` = 'Published'");
-                $app = SiteTree::get_one('RiotApplicationForm', "`Status` = 'Published'");
-                return new DataObjectSet(array($app, $apipage));
-            }
+
+        if(!Member::currentUser()) {
+            return new DataObjectSet();
         }
+
         return parent::Children();
     }
 }
@@ -73,9 +71,11 @@ class EveProfilePage_Controller extends MemberProfilePage_Controller {
     function RegisterForm()
     {
         $form = parent::RegisterForm();
+        /*
         $form->Fields()->push(new DropDownField('Reason', 'Why are you Registering?',
             array(0 => 'I\'m a Rioter', 1 => 'I want to join Riot', 2 => 'I\'m a Guest')
         ));
+        */
         return $form;
     }
 
@@ -100,14 +100,8 @@ class EveProfilePage_Controller extends MemberProfilePage_Controller {
                 }
             }
 
-            if($data['Reason'] == 0) {
-                return $this->redirect($this->Link('api-keys'));
-            } elseif ($data['Reason'] == 1) {
-                return $this->redirect($this->Link('application-form'));
-            } elseif ($data['Reason'] == 2) {
-                return $this->redirect('forums');
-            }
-            return $this->redirect($this->Link('afterregistration'));
+            return $this->redirect($this->Link('api-keys'));
+            //return $this->redirect($this->Link('afterregistration'));
         } else {
             return $this->redirectBack();
         }

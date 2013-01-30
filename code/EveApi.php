@@ -124,54 +124,48 @@ class EveApi extends DataObject {
 
         foreach($this->Characters() as $c) {
             // first check corp
-            if($c['corporationID'] == 98045653) {
-                $groups[] = 'rioters';
-                $rank[90] = 'Rioter';
+            //if($c['corporationID'] == 98045653) {
+            if($corp = EveCorp::get_one('EveCorp', sprintf("CorpID = %d", $c['corporationID']))) {
+                $groups[] = $corp->Group()->ID;
+                $rank[90] = 'Member';
 
-            /*
-            // no more rint
-            } elseif($c['corporationID'] == 98140983) {
-                $groups[] = 'recruits';
-                $rank[95] = 'Recruit';
-            */
-
+                $this->ale->setCharacterID($c['characterID']);
+                try {
+                    $ci = $this->ale->char->CharacterSheet();
+                    $roles = $ci->xpath("/eveapi/result/rowset[@name='corporationRoles']/row");
+                    foreach($roles as $r) {
+                        $r = $r->attributes();
+                        // check for role based access (director)
+                        if($r['roleID'] == 1) {
+                            if($dg = Group::get_one('Group', sprintf("Code = 'directors' AND ParentID = %d", $corp->Group()->ID))) {
+                                $groups[] = $dg->ID;
+                            }
+                            $rank[10] = sprintf('%s Director', $corp->Ticker);
+                        }
+                    }
+                    /*
+                    $titles = $ci->xpath("/eveapi/result/rowset[@name='corporationTitles']/row");
+                    foreach($titles as $t) {
+                        $t = $t->attributes();
+                        if(($t['titleName'] == 'Officer' || $t['titleName'] == 'Enforcer')
+                            && in_array('rioters', $groups)
+                        ) {
+                            $groups[] = 'officers';
+                            $rank[20] = 'Officer';
+                        }
+                    }
+                    */
+                    if($c['characterID'] == $corp->CeoID) {
+                        $rank[0] = sprintf('%s CEO', $corp->Ticker);
+                    }
+                } catch(Exception $e) {
+                    continue;
+                }
             } else {
                 continue;
             }
-
-            $this->ale->setCharacterID($c['characterID']);
-            try {
-                $ci = $this->ale->char->CharacterSheet();
-                $roles = $ci->xpath("/eveapi/result/rowset[@name='corporationRoles']/row");
-                foreach($roles as $r) {
-                    //print_r($r);
-                    $r = $r->attributes();
-                    // check for role based access (officer, director)
-                    if($r['roleID'] == 1 && in_array('rioters', $groups)) {
-                        $groups[] = 'officers';
-                        $groups[] = 'directors';
-                        $rank[10] = 'Director';
-                    }
-                   //print_r($groups);
-                }
-                $titles = $ci->xpath("/eveapi/result/rowset[@name='corporationTitles']/row");
-                foreach($titles as $t) {
-                    //print_r($t);
-                    $t = $t->attributes();
-                    if(($t['titleName'] == 'Officer' || $t['titleName'] == 'Enforcer')
-                        && in_array('rioters', $groups)
-                    ) {
-                        $groups[] = 'officers';
-                        $rank[20] = 'Officer';
-                    }
-                }
-                if($c['name'] == 'Wishdokkta CEO') {
-                    $rank[0] = 'CEO';
-                }
-            } catch(Exception $e) {
-                continue;
-            }
         }
+        $groups = array_unique($groups);
         ksort($rank);
         return array('Groups' => $groups, 'Rank' => $rank);
     }

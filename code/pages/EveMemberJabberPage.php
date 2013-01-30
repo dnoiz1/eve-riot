@@ -13,18 +13,21 @@ class EveMemberJabberPage_controller extends Page_controller
         if(!$m) return new Form();
 
         $f = new FieldSet(
+/*
             new TextField('JabberUser', 'Jabber Login', $m->getField('JabberUser')),
             new PasswordField('JabberPasswd', 'Jabber Password', $m->getField('JabberPasswd'))
+*/
+            new CheckBoxField('JabberAutoConnect', 'Auto Connect to Jabber', $m->getField('JabberAutoConnect'))
         );
 
         $a = new FieldSet(
-            new FormAction('JabberSave', 'Submit'),
-            new FormAction('JabberDelete', 'Delete')
+            new FormAction('JabberSave', 'Submit')
+//            new FormAction('JabberDelete', 'Delete')
         );
 
-        $v = new RequiredFields('JabberUser', 'JabberPasswd');
+//        $v = new RequiredFields('JabberUser', 'JabberPasswd');
 
-        $form = new Form($this, 'JabberForm', $f, $a, $v);
+        $form = new Form($this, 'JabberForm', $f, $a); //$v
 
         if(Session::get('Eve.Profile.Jabber.Updated')) {
             $form->setMessage('Jabber Login Saved', 'good');
@@ -39,8 +42,9 @@ class EveMemberJabberPage_controller extends Page_controller
         $m = Member::currentUser();
         if(!$m) return Director::redirectBack();
 
-        $m->setField('JabberUser', $data['JabberUser']);
-        $m->setField('JabberPasswd', $data['JabberPasswd']);
+//        $m->setField('JabberUser', $data['JabberUser']);
+//        $m->setField('JabberPasswd', $data['JabberPasswd']);
+        $m->setField('JabberAutoConnect', $data['JabberAutoConnect']);
 
         $m->write();
 
@@ -48,7 +52,7 @@ class EveMemberJabberPage_controller extends Page_controller
 
         Director::redirectBack();
     }
-
+/*
     function JabberDelete()
     {
         $m = Member::currentUser();
@@ -63,6 +67,7 @@ class EveMemberJabberPage_controller extends Page_controller
         Director::redirectBack();
 
     }
+*/
 }
 
 

@@ -13,7 +13,7 @@ class Page extends SiteTree {
     );
 
     public static $defaults = array(
-        'OpenInNewWindow' => 'false'
+        'OpenInNewWindow' => 0
     );
 
     public function getCMSFields()
@@ -66,7 +66,7 @@ class Page_Controller extends ContentController {
         $searchresults = new DataObjectSet();
         $searchresults->merge($pages);
 
-        if($m = Member::currentUser() && $m->inGroup('rioters')) {
+        if($m = Member::currentUser() && $m->Groups()->Count() > 0) {
             $faq = DataObject::get("FAQ", sprintf("MATCH (Title,Content) AGAINST ('%s' IN BOOLEAN MODE)", $query));
             $searchresults->merge($faq);
         }
@@ -81,17 +81,17 @@ class Page_Controller extends ContentController {
         return $this->customise($data)->renderWith(array('Page_results','Page'));
     }
 
-    function IsRioter()
+    function InAlliance()
     {
         if($m = Member::currentUser()) {
-            if($m->inGroup('rioters')) return true;
+            if($m->Groups()->Count() > 0) return true;
         }
         return false;
     }
 
     function NextTimer()
     {
-       if(!$this->IsRioter()) return false;
+       if(!$this->InAlliance()) return false;
        return EvePosTimerPage::get_one('EvePosTimerPage')->NextTimer();
     }
 }

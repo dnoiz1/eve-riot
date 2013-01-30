@@ -32,3 +32,10 @@ class EveCreditAdmin extends ModelAdmin
     static $url_segment = 'credit-providers';
     static $menu_title = 'Credit Provider';
 }
+
+class EveAllianceAdmin extends ModelAdmin
+{
+    static $managed_models = array('EveAlliance', 'EveCorp');
+    static $url_segment = 'alliance';
+    static $menu_title = 'Alliance';
+}

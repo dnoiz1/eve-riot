@@ -5,7 +5,7 @@ class EveNonCorpPage extends Page
     function ShowInMainMenu()
     {
         if($m = Member::currentMember()) {
-            if($m->inGroup('rioters')) return false;
+            if($m->Groups()->Count() > 0) return false;
         }
         return true;
     }

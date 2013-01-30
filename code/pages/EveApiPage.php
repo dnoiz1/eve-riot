@@ -72,6 +72,7 @@ JS
 
     function Groups()
     {
+/*
         $groups = array('Rioters', 'Officers', 'Directors');
         $gs = array();
 
@@ -82,5 +83,11 @@ JS
         }
 
         return new DataObjectset($gs);
+*/
+        if($m = Member::CurrentMember()) {
+            return $m->Groups();
+        }
+        return false;
+
     }
 }

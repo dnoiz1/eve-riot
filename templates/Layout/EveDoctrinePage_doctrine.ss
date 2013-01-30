@@ -16,7 +16,7 @@
                 <tbody>
                    <% control Doctrine.EveDoctrineShip %>
                         <tr class="rowlink" rel="$Link">
-                            <td><img src="http://image.eveonline.com/Render/{$Fitting.ShipID}_128.png" /></td>
+                            <td><img src="//image.eveonline.com/Render/{$Fitting.ShipID}_128.png" /></td>
                             <td><a href="$Link">$Name.XML: $TechLevel.XML $Fitting.ShipName.XML</a></td>
                             <!-- td>$Price ISK</td //-->
                             <td>$Reimbursment.Nice ISK</td>

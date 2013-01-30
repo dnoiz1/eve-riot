@@ -14,10 +14,10 @@
             $Content
 
             <div class="portraits">
-                <img class="pilot-image" src="http://image.eveonline.com/character/{$Character.ID}_256.jpg">
-                <img class="corp-image" src="http://image.eveonline.com/corporation/{$Character.CorporationID}_128.png">
+                <img class="pilot-image" src="//image.eveonline.com/character/{$Character.ID}_256.jpg">
+                <img class="corp-image" src="//image.eveonline.com/corporation/{$Character.CorporationID}_128.png">
                 <% if AllianceID = 0 %><% else %>
-                <img class="alliance-image" src="http://image.eveonline.com/alliance/{$Character.AllianceID}_128.png">
+                <img class="alliance-image" src="//image.eveonline.com/alliance/{$Character.AllianceID}_128.png">
                 <% end_if %>
             </div>
 
