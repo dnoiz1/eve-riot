@@ -68,7 +68,7 @@
                 <table class="tborder orders">
                     <thead>
                         <tr>
-                            <th colspan="4">Items</th>
+                            <th colspan="4">History</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,6 +91,40 @@
                             <tr>
                                 <td colspan="4" class="message">
                                     This Order doesnt have any History! Something is probably wrong.
+                                </td>
+                            </tr>
+                        <% end_if %>
+                    </tbody>
+                </table>
+
+                <h3>Transactions</h3>
+
+                <table class="tborder orders">
+                    <thead>
+                        <tr>
+                            <th colspan="4">Transaction Records</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="tcat">Reference ID</td>
+                            <td class="tcat">Date</td>
+                            <td class="tcat">Character</td>
+                            <td class="tcat">Amount</td>
+                        </tr>
+                        <% if EveCreditRecord %>
+                            <% control EveCreditRecord %>
+                                <tr>
+                                    <td>$RefID</td>
+                                    <td>$Created.Nice</td>
+                                    <td>$Character.Name</td>
+                                    <td>$Amount</td>
+                                </tr>
+                            <% end_control %>
+                        <% else %>
+                            <tr>
+                                <td colspan="4" class="message">
+                                    This Order Hasnt got any Transactions! Something is probably wrong.
                                 </td>
                             </tr>
                         <% end_if %>

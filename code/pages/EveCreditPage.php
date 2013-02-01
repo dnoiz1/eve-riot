@@ -8,16 +8,37 @@ class EveCreditPage extends Page
 
 class EveCreditPage_controller extends Page_Controller
 {
-    function manage($request)
+    function handleAction($request)
     {
-        $id = (int)$request->Param('ID');
+        if($action = $request->Param('Action')) {
+            $m = Member::CurrentUser();
+            if(!$m || !$action) return $this->httpError(404);
 
-        $m = Member::CurrentUser();
-        if(!$m) return $this->httpError(404);
-        // change this to some better kind of access control
-        if(!$m->inGroup('administrators')) return $this->httpError(403);
+            if(!$credit_provider = EveCreditProvider::get_one('EveCreditProvider', sprintf('ID = %d', Convert::raw2sql($action)))) {
+                return $this->httpError(404);
+            }
 
-        return $this->renderWith(array('EveCreditPage_manage', 'Page'), array(
-        ));
+            if(!$credit_provider->canView()) return $this->httpError(404);
+
+            if($id = $request->Param('ID')) {
+                $member = Member::get_by_id('Member', (int)$id);
+                if(!$member) return $this->httpError(404);
+                $member_balance = $credit_provider->MemberBalance($member->ID);
+                $transaction_history = $credit_provider->MemberTransactionHistory($member->ID);
+
+                return $this->renderWith(array('EveCreditPage_transaction_history', 'Page'), array(
+                    'CreditProvider'        => $credit_provider,
+                    'Member'                => $member,
+                    'MemberBalance'         => $member_balance,
+                    'TransactionHistory'    => $transaction_history
+                ));
+            }
+
+            return $this->renderWith(array('EveCreditPage_manage', 'Page'), array(
+                'CreditProvider' => $credit_provider
+            ));
+        }
+
+        return $this->renderWith(array('EveCreditPage', 'Page'));
     }
 }

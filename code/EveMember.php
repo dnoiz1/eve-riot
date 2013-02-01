@@ -89,13 +89,31 @@ class EveMember extends DataObjectDecorator
         $this->owner->write();
     }
 
-    function Characters()
+    function Characters($nocache = false)
     {
         if($this->owner->chars) return $this->owner->chars;
-        $chars = array();
-        if($this->ApiKeys()) foreach($this->ApiKeys() as $a) {
-            foreach($a->Characters() as $c) {
-                $chars[] = $c;
+
+        if(!$nocache) {
+           if($cache = EveMemberCharacterCache::get('EveMemberCharacterCache', sprintf("MemberID = '%d'", $this->owner->ID))) {
+                $chars = array();
+                foreach($cache as $c) {
+                    $chars[] = array(
+                        'name'              => $c->CharacterName,
+                        'characterID'       => $c->CharacterID,
+                        'corporationID'     => $c->CoporationID,
+                        'corporationName'   => $c->CoporationName
+                    );
+                }
+                if(count($chars) > 0) $nocache = true;
+           }
+        }
+
+        if($nocache) {
+            $chars = array();
+            if($this->ApiKeys()) foreach($this->ApiKeys() as $a) {
+                foreach($a->Characters() as $c) {
+                    $chars[] = $c;
+                }
             }
         }
         $this->owner->chars = $chars;

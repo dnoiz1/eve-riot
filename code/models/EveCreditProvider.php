@@ -162,7 +162,7 @@ class EveCreditProvider extends DataObject
     function MemberTransactionHistory($memberid = null)
     {
         if($memberid) {
-            $m = Member::get_by_id($memberid);
+            $m = Member::get_by_id('Member', (int)$memberid);
         } else {
             $m = Member::CurrentUser();
         }
@@ -179,17 +179,18 @@ class EveCreditProvider extends DataObject
 
     function Balance($CharacterID = null)
     {
-        $filter = '';
+        $filter = false;
         if(is_array($CharacterID) && count($CharacterID) > 1) {
             array_walk($CharacterID, array('Convert', 'raw2sql'));
             $filter = sprintf("CharacterID IN ('%s')", implode($CharacterID, "','"));
-        } else {
+        } elseif($CharaterID) {
             if(is_array($CharacterID)) $CharacterID = $CharacterID[0];
             $filter = sprintf("CharacterID = '%s'", Convert::raw2sql($CharacterID));
         }
-
-        $filter = sprintf("%s AND EveCreditProviderID = %d", $filter, $this->ID);
+        if($filter) $filter = sprintf('%s AND', $filter);
+        $filter = sprintf("%s EveCreditProviderID = %d", $filter,  $this->ID);
         $sql = sprintf("SELECT SUM(Amount) FROM EveCreditRecord WHERE %s", $filter);
+
 
         return (float) DB::Query($sql)->value();
     }
@@ -197,7 +198,7 @@ class EveCreditProvider extends DataObject
     function MemberBalance($memberid = null)
     {
         if($memberid) {
-            $m = Member::get_by_id($memberid);
+            $m = Member::get_by_id('Member', (int)$memberid);
         } else {
             $m = Member::CurrentUser();
         }
@@ -210,6 +211,41 @@ class EveCreditProvider extends DataObject
         }
 
         return $this->Balance($chars);
+    }
+
+    /* return current balances for all members who have deposited */
+    function MemberBalances()
+    {
+        $sql = sprintf("SELECT EveCreditRecord.CharacterID,
+                            SUM(EveCreditRecord.Amount) as Balance,
+                            Member.NickName as 'Member',
+                            Member.ID as 'MemberID'
+                        FROM EveCreditRecord
+                        JOIN EveMemberCharacterCache ON EveCreditRecord.CharacterID = EveMemberCharacterCache.CharacterID
+                        JOIN Member On EveMemberCharacterCache.MemberID = Member.ID
+                        WHERE
+                        EveCreditRecord.EveCreditProviderID = '%d'
+                        GROUP BY
+                        EveCreditRecord.CharacterID,
+                        Member.ID
+                        ORDER BY Member.NickName", $this->ID);
+        $result = DB::Query($sql);
+        $dos = new DataObjectSet();
+        while($row = $result->record()) {
+            $dos->push(new ArrayData($row));
+        }
+        return $dos;
+    }
+
+    function NonMemberBalance()
+    {
+        $sql = sprintf("SELECT SUM(EveCreditRecord.Amount) as Balance
+                        FROM EveCreditRecord
+                        JOIN EveMemberCharacterCache ON EveCreditRecord.CharacterID = EveMemberCharacterCache.CharacterID
+                        JOIN Member On EveMemberCharacterCache.MemberID = Member.ID
+                        WHERE
+                        EveCreditRecord.EveCreditProviderID = '%d'", $this->ID);
+        return $this->Balance() - DB::Query($sql)->value();
     }
 
     function canView()

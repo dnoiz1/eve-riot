@@ -7,14 +7,16 @@ class EveCharacter extends ViewableData
     public $api = false;
     public $characterID = false;
     public $cache = false;
+    public $character_info = false;
+    public $character_sheet = false;
 
     function __construct($characterID = null, EveApi $api = null)
     {
         if(!$characterID) new Exception('need a character id bro');
         // use the EveMemberChache first
         if(!$api) {
-            if($cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d'", $characterID))) {
-                $api = $cache->EveApi();
+            if($this->cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d'", $characterID))) {
+                $api = $this->cache->EveApi();
             }
         }
 
@@ -71,16 +73,20 @@ class EveCharacter extends ViewableData
 
     function _characterSheet()
     {
+        if($this->character_sheet) return $this->character_sheet;
         $this->setCharacterID();
         $xml = $this->api->ale->char->characterSheet();
+        $this->character_sheet = $xml;
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
     }
 
     function _characterInfo()
     {
+        if($this->character_info) return $this->character_info;
         $this->setCharacterID();
         $xml = $this->api->ale->eve->characterInfo();
+        $this->character_info = $xml;
 //        if(!$this->f) { $this->f = true; var_dump($xml); }
         return $xml;
     }
@@ -95,16 +101,22 @@ class EveCharacter extends ViewableData
 
     function Name()
     {
+        return $this->cache->CharacterName;
+        /*
         $x = $this->_characterSheet();
         $r = $x->xpath('result/name');
         return (string)$r[0];
+        */
     }
 
     function ID()
     {
+        return $this->cache->CharacterID;
+        /*
         $x = $this->_characterSheet();
         $r = $x->xpath('result/characterID');
         return (string)$r[0];
+        */
     }
 
     function DoB()
@@ -145,16 +157,22 @@ class EveCharacter extends ViewableData
 
     function Corporation()
     {
+        $this->cache->CorporationName;
+        /*
         $x = $this->_characterSheet();
         $r = $x->xpath('result/corporationName');
         return (string)$r[0];
+        */
     }
 
     function CorporationID()
     {
+        return $this->cache->CorporationID;
+        /*
         $x = $this->_characterSheet();
         $r = $x->xpath('result/corporationID');
         return (string)$r[0];
+        */
     }
 
     function Alliance()
@@ -351,7 +369,8 @@ class EveCharacter extends ViewableData
 
         $groups = invTypes::SkillGroups();
         foreach($groups as $g) {
-            foreach($g->invTypes() as $s) {
+            $gInv = $g->invTypes();
+            if($gInv) foreach($gInv as $s) {
                 $r = $x->xpath(sprintf('result/rowset[@name="skills"]/row[@typeID="%d"]', $s->typeID));
                 if($r) {
                     //echo 'lol';

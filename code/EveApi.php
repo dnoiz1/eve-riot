@@ -38,11 +38,17 @@ class EveApi extends DataObject {
 
     function isValid()
     {
+        if(!$this->Member()) return new DataObjectSet(array(array('Reason' => 'No Assoc Member')));
+        if(time() - strtotime($this->Member()->LastVisited) > (86400 * 30)) {
+            return new DataObjectSet(array(array('Reason' => 'Member has not logged in for one month')));
+        }
+
         $errors = array();
         try {
             $this->ale->setKey($this->KeyID, $this->vCode);
 
             $info = $this->ale->Account->APIKeyInfo();
+
             // check  is account
             $info = $info->result->key->attributes();
             if($info['type'] != 'Account' && $info['type'] != 'Corporation') {
@@ -70,7 +76,7 @@ class EveApi extends DataObject {
                 }
             }
         } catch(Exception $e) {
-            $errors[] = array('Reason' => 'Invalid Key');
+            $errors[] = array('Reason' => $e->getMessage());
         }
         return (count($errors) > 0) ? new DataObjectSet($errors) : true;
     }

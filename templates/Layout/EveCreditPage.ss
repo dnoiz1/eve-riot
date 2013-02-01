@@ -18,7 +18,7 @@
                         <td class="tcat">Balance</td>
                     </tr>
                     <% control CreditProviders %>
-                        <tr>
+                        <tr <% if canView %>class="rowlink" rel="{$Top.Link}{$ID}"<% end_if %>>
                             <td>$Name</td>
                             <td>$MemberBalance ISK</td>
                         </tr>

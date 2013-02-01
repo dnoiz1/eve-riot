@@ -7,7 +7,6 @@
                     Your username is: <span class="important">{$CurrentMember.JabberUser}@evetroll.com</span>
                 </p>
                 $Content
-           
                 $JabberForm
             <% else %>
                 You do not meet the current requiremnts to access Jabber
