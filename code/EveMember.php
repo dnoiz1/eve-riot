@@ -29,6 +29,11 @@ class EveMember extends DataObjectDecorator
         return preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
     }
 
+    function AllowedJabber()
+    {
+        return Permission::check('JABBER');
+    }
+
     function ApiKeys()
     {
         return EveApi::get('EveApi', sprintf('MemberID = %d', $this->owner->ID));

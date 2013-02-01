@@ -9,11 +9,13 @@ class Page extends SiteTree {
     }
 
     public static $db = array(
-        'OpenInNewWindow' => 'Boolean'
+        'OpenInNewWindow'   => 'Boolean',
+        'ShowOnHomePage'    => 'Boolean'
     );
 
     public static $defaults = array(
-        'OpenInNewWindow' => 0
+        'OpenInNewWindow' => 0,
+        'ShowOnHomePage'  => 1
     );
 
     public function getCMSFields()
@@ -21,6 +23,7 @@ class Page extends SiteTree {
         $f = parent::getCMSFields();
         $fields = $f->findOrMakeTab('Root.Behaviour');
         $fields->insertAfter(new CheckBoxField('OpenInNewWindow', 'Open in new window?', $this->OpenInNewWindow), 'ShowInMenus');
+        $fields->insertAfter(new CheckBoxField('ShowOnHomePage', 'Show On Home Page?', $this->ShowOnHomePage), 'OpenInNewWindow');
         return $f;
     }
 }
@@ -92,6 +95,6 @@ class Page_Controller extends ContentController {
     function NextTimer()
     {
        if(!$this->InAlliance()) return false;
-       return EvePosTimerPage::get_one('EvePosTimerPage')->NextTimer();
+       return EvePosTimerPage::get_one('EvePosTimerPage', "`SiteTree_Live`.`UrlSegment` = 'op-timers'")->NextTimer();
     }
 }

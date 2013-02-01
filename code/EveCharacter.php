@@ -6,10 +6,17 @@ class EveCharacter extends ViewableData
 {
     public $api = false;
     public $characterID = false;
+    public $cache = false;
 
     function __construct($characterID = null, EveApi $api = null)
     {
         if(!$characterID) new Exception('need a character id bro');
+        // use the EveMemberChache first
+        if(!$api) {
+            if($cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d'", $characterID))) {
+                $api = $cache->EveApi();
+            }
+        }
 
         // first check if we have an EveAPI
         if($api) {
@@ -24,10 +31,12 @@ class EveCharacter extends ViewableData
             }
 
             // slow horse mode, should probably avoid this
+            /* ye, ye fuck em, YOLO
             $apis = EveApi::get('EveApi');
             foreach($apis as $a) {
                 if($this->findCharacter($characterID, $a)) return $this;
             }
+            */
         }
         return false;
     }

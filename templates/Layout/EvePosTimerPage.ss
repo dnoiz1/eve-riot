@@ -4,12 +4,14 @@
 		<div class="content">
             $Content
 
-            <p>
-                Displaying Timers for Regions:
-                <% control Regions %>
-                    $regionName<% if Last %><% else %>,<% end_if %>
-                <% end_control %>
-            </p>
+            <% if Regions %>
+                <p>
+                    Displaying Timers for Regions:
+                    <% control Regions %>
+                        $regionName<% if Last %><% else %>,<% end_if %>
+                    <% end_control %>
+                </p>
+            <% end_if %>
 
             <table class="full tborder timers">
                 <thead>

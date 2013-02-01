@@ -55,7 +55,7 @@ class EveApiJob extends AbstractQueuedJob
             if($apis = $m->ApiKeys()) {
                 foreach($apis as $a) {
                     foreach($a->Characters() as $c) {
-                        if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacetID = %d", $m->ID, $c['characterID']))) {
+                        if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacterID = %d", $m->ID, $c['characterID']))) {
                             $cache = new EveMemberCharacterCache();
                             $cache->CharacterName = $c['name'];
                             $cache->CharacterID   = $c['characterID'];

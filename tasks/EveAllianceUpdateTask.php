@@ -113,7 +113,7 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
 
     		if($this->repeat) {
     	    	$job = new EveAllianceUpdateJob();
-    			//singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;

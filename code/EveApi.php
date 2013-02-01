@@ -173,7 +173,15 @@ class EveApi extends DataObject {
     function onAfterWrite()
     {
         $m = Member::get_by_id('Member', (int)$this->MemberID);
-        if($m) $m->updateGroupsFromAPI();
+        if($m) {
+            $m->updateGroupsFromAPI();
+            if($m->CharacterID == 0) {
+                if($chars = $this->Characters()) {
+                    $m->CharacterID = $chars[0]['characterID'];
+                    $m->write();
+                }
+            }
+        }
         return parent::onAfterWrite();
     }
 

@@ -3,9 +3,11 @@
 class EveMemberCharacterCache extends DataObject
 {
     static $db = array(
-        'CharacterID'   => 'Int',
-        'CharacterName' => 'Varchar(255)',
-        'APIHash'       => 'Varchar(32)'
+        'CharacterID'       => 'Int',
+        'CharacterName'     => 'Varchar(255)',
+        'CorporationID'     => 'Int',
+        'CorporationName'   => 'Varchar(255)',
+        'APIHash'           => 'Varchar(32)'
     );
 
     static $has_one = array(
