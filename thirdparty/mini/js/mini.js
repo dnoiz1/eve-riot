@@ -215,8 +215,8 @@ This is the JSJaC library for Jappix (from trunk)
 -------------------------------------------------
 
 Licenses: Mozilla Public License version 1.1, GNU GPL, AGPL
-Authors: Stefan Strigler, Valérian Saliou, Zash, Maranda
-Last revision: 08/10/12
+Authors: Stefan Strigler, Vanaryon, Zash
+Last revision: 13/02/12
 
 */
 
@@ -1869,10 +1869,7 @@ JSJaCPacket.prototype.setType = function(type) {
  */
 JSJaCPacket.prototype.setXMLLang = function(xmllang) {
   // Fix IE9+ bug with xml:lang attribute
-
-  // Also due to issues with both BD and jQuery being used, employ a simple regexp since the detection
-  // here is very limited.
-  if (navigator.appVersion.match(/^.*MSIE (\d)/) && navigator.appVersion.match(/^.*MSIE (\d)/)[1] >= 9)
+  if (jQuery.browser.msie && (parseInt(jQuery.browser.version) >= 9))
     return this;
   if (!xmllang || xmllang == '')
     this.getNode().removeAttribute('xml:lang');
@@ -4896,7 +4893,7 @@ These are the constants JS scripts for Jappix
 -------------------------------------------------
 
 License: dual-licensed under AGPL and MPLv2
-Authors: Stefan Strigler, Valérian Saliou, Kloadut
+Authors: Stefan Strigler, Vanaryon, Kloadut
 Last revision: 12/06/12
 
 */
@@ -5112,7 +5109,7 @@ These are the temporary/persistent data store functions
 -------------------------------------------------
 
 License: dual-licensed under AGPL and MPLv2
-Author: Valérian Saliou
+Author: Vanaryon
 Last revision: 21/06/12
 
 */
@@ -5343,8 +5340,8 @@ These are the common JS script for Jappix
 -------------------------------------------------
 
 License: dual-licensed under AGPL and MPLv2
-Authors: Valérian Saliou, olivierm, regilero, Maranda
-Last revision: 24/09/12
+Authors: Vanaryon, olivierm, regilero
+Last revision: 08/08/12
 
 */
 
@@ -5381,9 +5378,6 @@ function isFocused() {
 // Generates the good XID
 function generateXID(xid, type) {
 	// XID needs to be transformed
-	// .. and made lowercase (uncertain though this is the right place...)
-	xid = xid.toLowerCase();
-
 	if(xid && (xid.indexOf('@') == -1)) {
 		// Groupchat
 		if(type == 'groupchat')
@@ -5686,7 +5680,7 @@ These are the date related JS scripts for Jappix
 -------------------------------------------------
 
 License: dual-licensed under AGPL and MPLv2
-Author: Valérian Saliou
+Author: Vanaryon
 Last revision: 17/08/11
 
 */
@@ -5898,7 +5892,7 @@ These are the links JS script for Jappix
 -------------------------------------------------
 
 License: dual-licensed under AGPL and MPLv2
-Authors: Valérian Saliou, Maranda
+Authors: Vanaryon, Maranda
 Last revision: 26/08/11
 
 */
@@ -5936,7 +5930,7 @@ These are the Jappix Mini JS scripts for Jappix
 -------------------------------------------------
 
 License: dual-licensed under AGPL and MPLv2
-Authors: Valérian Saliou, hunterjm, Camaran, regilero, Kloadut
+Authors: Vanaryon, hunterjm, Camaran, regilero, Kloadut
 Last revision: 22/08/12
 
 */
@@ -6271,26 +6265,27 @@ function handleMessageMini(msg) {
 					
 					// No nickname?
 					if(!nick) {
-						// If the roster does not give us any nick the user may have send us a nickname to use with his first message
-						// @see http://xmpp.org/extensions/xep-0172.html
-						var unknown_entry = jQuery('#jappix_mini a.jm_unknown[data-xid=' + xid + ']');
-						
-						if(unknown_entry.size() > 0) {
-							nick =  unknown_entry.attr('data-nick');
-						} else {
-							var msgnick = msg.getNick();
-							nick = getXIDNick(xid);
-							
-							if(msgnick) {
-							 	// If there is a nickname in the message which differs from the jid-extracted nick then tell it to the user
-								if(nick != msgnick)
-									 nick = msgnick + ' (' + nick + ')';
-							}
-							
-							// Push that unknown guy in a temporary roster entry
-							var unknown_entry = jQuery('<a class="jm_unknown jm_offline" href="#"></a>').attr('data-nick', nick).attr('data-xid', xid);
-							unknown_entry.appendTo('#jappix_mini div.jm_roster div.jm_buddies');
-						 }
+					    // if the roster does not give us any nick the user may have send us a nickname to use with his first message
+	                   // @see http://xmpp.org/extensions/xep-0172.html
+	                   // we first check we do not have made this stuff before
+	                   var unknown_entry = jQuery('#jappix_mini a.jm_unknown[data-xid=' + xid + ']');
+	                   
+	                   if(unknown_entry.length > 0) {
+	                       nick =  unknown_entry.attr('data-nick');
+	                   } else {
+	                       var msgnick = msg.getNick();
+	                       nick = getXIDNick(xid);
+	                       
+	                       if(msgnick) {
+	                       	   // If there is a nickname in the message which differs from the jid-extracted nick then tell it to the user
+	                           if(nick != msgnick)
+	                               nick = msgnick + ' (' + nick + ')';
+	                       }
+	                       
+	                       // Push that unknown guy in a temporary roster entry
+	                       var unknown_entry = jQuery('<a class="jm_unknown jm_offline" href="#"></a>').attr('data-nick', nick).attr('data-xid', xid);
+	                       unknown_entry.appendTo(jQuery('.jm_buddies', jQuery('#jappix_mini')));
+	                   }
 					}
 				}
 				
@@ -6420,31 +6415,6 @@ function handleIQMini(iq) {
 			con.send(iqResponse);
 			
 			logThis('Received local time query: ' + iqFrom);
-		}
-		
-		// Ping
-		else if($(iqNode).find('ping').size() && (iqType == 'get')) {
-			/* REF: http://xmpp.org/extensions/xep-0199.html */
-			
-			con.send(iqResponse);
-			
-			logThis('Received a ping: ' + iqFrom);
-		}
-		
-		// Not implemented
-		else if(!$(iqNode).find('error').size() && ((iqType == 'get') || (iqType == 'set'))) {
-			// Append stanza content
-			for(var i = 0; i < iqNode.childNodes.length; i++)
-				iqResponse.getNode().appendChild(iqNode.childNodes.item(i).cloneNode(true));
-			
-			// Append error content
-			var iqError = iqResponse.appendNode('error', {'xmlns': NS_CLIENT, 'code': '501', 'type': 'cancel'});
-			iqError.appendChild(iq.buildNode('feature-not-implemented', {'xmlns': NS_STANZAS}));
-			iqError.appendChild(iq.buildNode('text', {'xmlns': NS_STANZAS}, _e("The feature requested is not implemented by the recipient or server and therefore cannot be processed.")));
-			
-			con.send(iqResponse);
-			
-			logThis('Received an unsupported IQ query from: ' + iqFrom);
 		}
 	} catch(e) {
 		logThis('Error on IQ handler: ' + e, 1);
@@ -6675,14 +6645,14 @@ function sendMessageMini(aForm) {
 			
 			// If the roster does not give us any nick the user may have send us a nickname to use with his first message
             // @see http://xmpp.org/extensions/xep-0172.html
-            var known_roster_entry = jQuery('#jappix_mini a.jm_friend[data-xid=' + xid + ']');
-            
-			if(known_roster_entry.size() == 0) {
-		        var subscription = known_roster_entry.attr('data-sub');
-		        
-		        // The other may not know my nickname if we do not have both a roster entry, or if he doesn't have one
-		        if(('both' != subscription) && ('from' != subscription))
-	                aMsg.setNick(MINI_NICKNAME);
+			if(0 == jQuery('#jappix_mini a.jm_friend[data-xid=' + xid + ']').size()) {
+			        var subscription = known_roster_entry.attr('data-sub');
+			        
+			        // The other may not know my nickname if we do not have both a roster entry, or if he doesn't have one
+			        if(('both' != subscription) && ('from' != subscription)) {
+			                // Adding our nickname in the message, hard to know if this is just the first one
+			                aMsg.setNick(MINI_NICKNAME);
+			        }
 			}
 			
 			// Message data
@@ -7029,7 +6999,7 @@ function createMini(domain, user, password) {
 				return false;
 			
 			// Not yet connected?
-			if(jQuery(counter).text() == _e("Chat")) {
+			if(jQuery(counter).text() == _e("Jabber")) {
 				// Remove the animated bubble
 				jQuery('#jappix_mini div.jm_starter span.jm_animate').stopTime().remove();
 				
@@ -7485,7 +7455,7 @@ function createMini(domain, user, password) {
 	// Cannot auto-connect?
 	else {
 		// Chat text
-		jQuery('#jappix_mini a.jm_pane.jm_button span.jm_counter').text(_e("Chat"));
+		jQuery('#jappix_mini a.jm_pane.jm_button span.jm_counter').text(_e("Jabber"));
 		
 		// Must animate?
 		if(MINI_ANIMATE) {

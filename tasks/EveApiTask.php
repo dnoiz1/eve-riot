@@ -54,11 +54,25 @@ class EveApiJob extends AbstractQueuedJob
 
             if($apis = $m->ApiKeys()) {
                 foreach($apis as $a) {
+                    if($errors = $a->isValid()) {
+                        if(is_array($errors)) {
+                            foreach($errors as $e) {
+                                if($e->Reason == 'Key has expired. Contact key owner for access renewal.'
+                                 || $e->Reason == 'Authentication failure.') {
+                                    $a->delete();
+                                }
+                            }
+                            continue;
+                        }
+                    }
                     foreach($a->Characters() as $c) {
-                        if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacetID = %d", $m->ID, $c['characterID']))) {
+                        //incase they have multiple apis for the same account.. people is tards
+                        if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("EveMemberID = %d AND CharacterID = %d", $m->ID, $c['characterID']))) {
                             $cache = new EveMemberCharacterCache();
                             $cache->CharacterName = $c['name'];
                             $cache->CharacterID   = $c['characterID'];
+                            $cache->CorporationName = $c['corporationName'];
+                            $cache->CorporationID   = $c['corporationID'];
                             $cache->MemberID      = $m->ID;
                             $cache->EveApiID      = $a->ID;
 

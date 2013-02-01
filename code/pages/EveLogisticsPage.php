@@ -64,8 +64,13 @@ class EveLogisticsPage_controller extends Page_controller
         Requirements::CustomScript(<<<JS
             var clear_order = {$clear_order};
 
-            var ls_order_items = localStorage.getItem('order_items');
-            if(ls_order_items) {
+            // IGB has no localStorage :(
+            if(typeof localStorage != 'undefined') {
+                var ls_order_items = localStorage.getItem('order_items');
+            } else {
+                ls_order_items = [];
+            }
+            if(ls_order_items.length > 0) {
                 var order_items = JSON.parse(ls_order_items);
             } else {
                 var order_items = [];
@@ -298,7 +303,9 @@ class EveLogisticsPage_controller extends Page_controller
 
             jQuery(function(){
                 jQuery(window).unload(function(){
-                    localStorage.setItem('order_items', JSON.stringify(order_items));
+                    if(typeof localStorage != 'undefined') {
+                        localStorage.setItem('order_items', JSON.stringify(order_items));
+                    }
                 });
 
                 jQuery('#Form_EveLogisticsForm_Qty').keyup(updateQty);

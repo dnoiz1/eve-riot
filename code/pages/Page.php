@@ -13,7 +13,7 @@ class Page extends SiteTree {
     );
 
     public static $defaults = array(
-        'OpenInNewWindow' => 'false'
+        'OpenInNewWindow' => 0
     );
 
     public function getCMSFields()

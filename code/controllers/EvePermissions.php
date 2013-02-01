@@ -33,6 +33,10 @@ class EvePermissions extends SiteTree implements PermissionProvider
                 'name'  => 'Manage Logistics Orders',
                 'category' => 'Eve Permissions'
             ),
+            'JABBER' => array(
+                'name'  =>  'Allow Jabber Access',
+                'category' => 'External Services'
+            )
         );
     }
 }

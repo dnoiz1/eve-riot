@@ -9,11 +9,15 @@ class EveMember extends DataObjectDecorator
             'db' => array(
                 'CharacterID' => 'Int',
                 'JabberUser' => 'Varchar(255)',
-                'JabberToken' => 'Varchar(255)'
+                'JabberToken' => 'Varchar(255)',
+                'JabberAutoConnect' => 'Boolean',
             ),
             'has_many' => array(
                 'EveMemberCharacterCache' => 'EveMemberCharacterCache'
             ),
+            'defaults' => array(
+                'JabberAutoConnect' => 1
+            )
         );
     }
 
@@ -23,6 +27,11 @@ class EveMember extends DataObjectDecorator
         $nn = trim($nn);
         $nn = str_replace(' ', '_', $nn);
         return preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
+    }
+
+    function AllowedJabber()
+    {
+        return Permission::check('JABBER');
     }
 
     function ApiKeys()
@@ -78,13 +87,31 @@ class EveMember extends DataObjectDecorator
         $this->owner->write();
     }
 
-    function Characters()
+    function Characters($nocache = false)
     {
         if($this->owner->chars) return $this->owner->chars;
-        $chars = array();
-        if($this->ApiKeys()) foreach($this->ApiKeys() as $a) {
-            foreach($a->Characters() as $c) {
-                $chars[] = $c;
+
+        if(!$nocache) {
+           if($cache = EveMemberCharacterCache::get('EveMemberCharacterCache', sprintf("MemberID = '%d'", $this->owner->ID))) {
+                $chars = array();
+                foreach($cache as $c) {
+                    $chars[] = array(
+                        'name'              => $c->CharacterName,
+                        'characterID'       => $c->CharacterID,
+                        'corporationID'     => $c->CoporationID,
+                        'corporationName'   => $c->CoporationName
+                    );
+                }
+                if(count($chars) > 0) $nocache = true;
+           }
+        }
+
+        if($nocache) {
+            $chars = array();
+            if($this->ApiKeys()) foreach($this->ApiKeys() as $a) {
+                foreach($a->Characters() as $c) {
+                    $chars[] = $c;
+                }
             }
         }
         $this->owner->chars = $chars;
