@@ -14,33 +14,37 @@ class EveCharacter extends ViewableData
     {
         if(!$characterID) new Exception('need a character id bro');
         // use the EveMemberChache first
-        if(!$api) {
-            if($this->cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d'", $characterID))) {
+        if($this->cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d'", $characterID))) {
+            if(!$api) {
                 $api = $this->cache->EveApi();
             }
         }
 
         // first check if we have an EveAPI
         if($api) {
+            if(!$api->isValid()) throw new Exception('Cannot Find Character');
             if($this->findCharacter($characterID, $api)) return $this;
         } else {
             // look for the charid on the current member
             $m = Member::currentMember();
             if($m) {
                 foreach($m->ApiKeys() as $a) {
+                    if(!$a->isValid()) throw new Exception('Cannot Find Character');
                     if($this->findCharacter($characterID, $a)) return $this;
                 }
             }
 
             // slow horse mode, should probably avoid this
-            /* ye, ye fuck em, YOLO
+            // ye, ye fuck em, YOLO is ok with nginx caching api calls
+            /*
             $apis = EveApi::get('EveApi');
             foreach($apis as $a) {
+                if(!$a->isValid()) return false;
                 if($this->findCharacter($characterID, $a)) return $this;
             }
             */
         }
-        return false;
+        throw new Exception('Cannot Find Character');
     }
 
     function setCharacterID($id = null)
@@ -64,6 +68,12 @@ class EveCharacter extends ViewableData
             }
         }
         return false;
+    }
+
+    function Corp()
+    {
+        if($cache) return $cache->EveCorp();
+        return EveCorp::get_one('EveCorp', sprintf("CorpID = '%d'", $this->CorporationID()));
     }
 
     function forTemplate()
@@ -101,22 +111,18 @@ class EveCharacter extends ViewableData
 
     function Name()
     {
-        return $this->cache->CharacterName;
-        /*
+        if($this->cache) return $this->cache->CharacterName;
         $x = $this->_characterSheet();
         $r = $x->xpath('result/name');
         return (string)$r[0];
-        */
     }
 
     function ID()
     {
-        return $this->cache->CharacterID;
-        /*
+        if($this->cache) return $this->cache->CharacterID;
         $x = $this->_characterSheet();
         $r = $x->xpath('result/characterID');
         return (string)$r[0];
-        */
     }
 
     function DoB()
@@ -157,22 +163,18 @@ class EveCharacter extends ViewableData
 
     function Corporation()
     {
-        $this->cache->CorporationName;
-        /*
+        if($this->cache) return $this->cache->CorporationName;
         $x = $this->_characterSheet();
         $r = $x->xpath('result/corporationName');
         return (string)$r[0];
-        */
     }
 
     function CorporationID()
     {
-        return $this->cache->CorporationID;
-        /*
+        if($this->cache) return $this->cache->CorporationID;
         $x = $this->_characterSheet();
         $r = $x->xpath('result/corporationID');
         return (string)$r[0];
-        */
     }
 
     function Alliance()
@@ -398,5 +400,21 @@ class EveCharacter extends ViewableData
             if($r['level'] > $level) return true;
         }
         return false;
+    }
+
+    function Rank()
+    {
+        if($corp = $this->Corp()) {
+            if($this->characterID == $corp->CeoID) return 'CEO';
+        }
+        $x = $this->_characterSheet();
+        $roles = $x->xpath("/eveapi/result/rowset[@name='corporationRoles']/row");
+        foreach($roles as $r) {
+            $r = $r->attributes();
+            if($r['roleID'] == 1) {
+                return 'Director';
+            }
+        }
+        return 'Member';
     }
 }

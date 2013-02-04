@@ -15,6 +15,18 @@ class EveMemberCharacterCache extends DataObject
         'EveApi'    => 'EveApi'
     );
 
+    static $summary_fields = array(
+        'CharacterID',
+        'CharacterName',
+        'CorporationID',
+        'CorporationName'
+    );
+
+    function EveCorp()
+    {
+        return EveCorp::get_one('EveCorp', sprintf("CorpID = '%d'", $this->CorporationID));
+    }
+
     function Character()
     {
         if($api = $this->EveApi()) {

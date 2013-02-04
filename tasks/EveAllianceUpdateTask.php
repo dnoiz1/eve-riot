@@ -56,14 +56,14 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
             $this->corporations = array_shift($alliances);
 
             $alliance = EveAlliance::get_by_id('EveAlliance', $this->allianceID);
-            printf(" - %s <%s>\n", $alliance->AllianceName, $alliance->Ticker);
+            //printf(" - %s <%s>\n", $alliance->AllianceName, $alliance->Ticker);
             /* create Alliance Group here if needed */
 
 
             /* end create */
 
             // remove groups for corps that are no longer in alliance
-            $corps = EveCorp::get('EveCorp', sprintf("CorpID NOT IN '%s'", implode($this->corporations, "','")));
+            $corps = EveCorp::get('EveCorp', sprintf("CorpID NOT IN '%s' AND ApiManaged = 0", implode($this->corporations, "','")));
             foreach($corps as $k => $c) {
                 if($c->Group()->ParentID == $alliance->Group()->ID) {
                     $c->Group()->delete();
@@ -79,7 +79,7 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
                 $c->write();
             }
 
-            printf(" -- %s [%s]\n", $c->CorpName, $c->Ticker);
+            //printf(" -- %s [%s]\n", $c->CorpName, $c->Ticker);
 
             if(!$g = Group::get_one('Group', sprintf("ID = '%s' AND ParentID = %d", $c->GroupID, $alliance->Group()->ID))) {
                 $g = new Group();

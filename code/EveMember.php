@@ -67,11 +67,13 @@ class EveMember extends DataObjectDecorator
             }
         }
 
+        $nonApiGroups = Group::get('Group', sprintf("ApiManaged = 0"))->map('ID', 'ID');
+
         $membergroups = $this->owner->Groups();
         if($membergroups) foreach($membergroups as $g) {
             if(!in_array($g->Code, $groups)) {
                 // only work with API groups
-                if(in_array($g->Code, array('administrators'))) continue;
+                if(in_array($g->ID, $nonApiGroups)) continue;
                 // remove from groups
                 $this->owner->Groups()->remove($g->ID);
                 $this->owner->Groups()->write();
@@ -123,7 +125,7 @@ class EveMember extends DataObjectDecorator
     function Character($id)
     {
         $chars = $this->Characters();
-        foreach($chars as $c) {
+        if($chars) foreach($chars as $c) {
             if($c['characterID'] == $id) return $c;
         }
         return false;
@@ -136,12 +138,23 @@ class EveMember extends DataObjectDecorator
         return $this->owner->char = new EveCharacter($this->owner->CharacterID);
     }
 
+    function Ticker()
+    {
+        if($cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d' AND MemberID = '%d'", $this->owner->CharacterID, $this->owner->ID))) {
+            if($corp = $cache->EveCorp()) {
+                return $corp->Ticker;
+            }
+        }
+        return false;
+    }
+
     function onBeforeWrite()
     {
         if($this->owner->isChanged('PublicFieldsRaw')) {
             $first = false;
             $nickname_as_toon = false;
-            foreach($this->Characters() as $c) {
+            $chars = $this->Characters();
+            if($chars) foreach($chars as $c) {
                 if(!$first) $first = $c['name'];
                 if($c['name'] == $this->owner->Nickname) {
                     $this->owner->setField('CharacterID', (int)$c['characterID']);
@@ -159,6 +172,10 @@ class EveMember extends DataObjectDecorator
         if($this->owner->isChanged('NumVisit')) {
             $gen = new RandomGenerator();
             $this->owner->JabberToken = $gen->generateHash('sha1');
+        }
+
+        if($this->owner->isChanged('CharacterID') && $main = $this->MainCharacter()) {
+            $this->owner->ForumRank = $main->Rank();
         }
 
         return parent::onBeforeWrite();

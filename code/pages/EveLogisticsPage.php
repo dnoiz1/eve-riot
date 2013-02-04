@@ -17,14 +17,19 @@ class EveLogisticsPage extends Page
         $f = parent::getCMSFields();
 
         $f->findOrMakeTab('Root.Content.Logistics', 'Logistics Configuration');
-        $f->addFieldsToTab('Root.Content.Logistics',
-            new FieldSet(
-                new EveSolarSystemAutoSuggestField('PriceCheckSolarSystemID', 'Price Check System'),
-                new NumericField('Markup', 'Mark Up (%)'),
-                new NumericField('IskPerM3', 'ISK Per'),
-                new DropDownField('EveCreditProviderID', 'Credit Provider', EveCreditProvider::get('EveCreditProvider')->map('ID', 'Name'))
-            )
+
+        $fields = new FieldSet(
+            new EveSolarSystemAutoSuggestField('PriceCheckSolarSystemID', 'Price Check System'),
+            new NumericField('Markup', 'Mark Up (%)'),
+            new NumericField('IskPerM3', 'ISK Per')
         );
+
+
+        if($credit_povider = EveCreditProvider::get('EveCreditProvider')) {
+            $fileds->push(new DropDownField('EveCreditProviderID', 'Credit Provider', $credit_provider->map('ID', 'Name')));
+        }
+
+        $f->addFieldsToTab('Root.Content.Logistics', $fields);
 
         return $f;
     }
@@ -65,8 +70,9 @@ class EveLogisticsPage_controller extends Page_controller
             var clear_order = {$clear_order};
 
             // IGB has no localStorage :(
-            if(typeof localStorage != 'undefined') {
+            if(typeof localStorage == 'object') {
                 var ls_order_items = localStorage.getItem('order_items');
+                if(!ls_order_items) ls_order_items = [];
             } else {
                 ls_order_items = [];
             }
@@ -87,7 +93,7 @@ class EveLogisticsPage_controller extends Page_controller
             }
 
             var iskFormat = function(num) {
-                return (num.toFixed(2)+'').replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+                return (parseFloat(num).toFixed(2)+'').replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
             },
 
             price_check_loadQ = 0,

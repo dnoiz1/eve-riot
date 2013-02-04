@@ -5,8 +5,18 @@ class EveGroup extends DataObjectDecorator
     {
         return array(
             'db' => array(
-                'Ticker'    => 'Varchar(5)'
+                'Ticker'    => 'Varchar(5)',
+                'ApiManaged'    => 'Boolean'
+            ),
+            'defaults' => array(
+                'ApiManaged'    => 1
             )
         );
+    }
+
+    public function UpdateCMSFields($f)
+    {
+        $f->addFieldToTab('Root.Members', new CheckBoxField('ApiManaged', 'Managed By EVE Api?'));
+        return $f;
     }
 }

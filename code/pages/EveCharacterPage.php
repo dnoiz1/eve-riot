@@ -6,7 +6,7 @@ class EveCharacterPage extends Page
 
 class EveCharacterPage_controller extends Page_controller
 {
-    public $char;
+    public $char = false;
 
     public function handleAction($request)
     {
@@ -36,12 +36,17 @@ JS
 
 //        if(!$charid || !$m->Character($charid) && !($m->inGroup('directors') || $m->inGroup('administrators'))) {
         if(!$m->Character($charid) && !Permission::check('EVE_CHAR_SHEET')) {
-            $this->char = new EveCharacter($m->CharacterID);
+            try {
+                $this->char = new EveCharacter($m->CharacterID);
+            } catch(Exception $e) {}
         } else {
-            $char = new EveCharacter($charid);
-            if(!$char) $this->httpError(404);
-            $this->char = $char;
+            try {
+                $this->char = new EveCharacter($charid);
+            } catch(Exception $e) {}
         }
+        if(!$this->char) return $this->httpError(404);
+
+        //var_dump($this->char);
 
         $this->Title = sprintf("%s: %s", $this->Title, $this->Character()->Name());
 
@@ -54,8 +59,9 @@ JS
         if(!$m) return false;
 
         $chars = array();
+        $characters = $m->Characters();
 
-        foreach($m->Characters() as $c) {
+        if($characters) foreach($characters as $c) {
             $chars[$this->Link($c['characterID'])] = $c['name'];
         }
 

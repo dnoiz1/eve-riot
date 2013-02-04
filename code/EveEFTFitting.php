@@ -4,7 +4,9 @@ class EveEFTFitting extends ViewableData
 {
     public function __construct($textblock)
     {
-        $e = explode("\n", $textblock);
+        $e = str_replace("\r", "", $textblock);
+//        $e = explode("\n", $textblock);
+        $e = explode("\n", $e);
 
         if(preg_match('#\[(.+?),(.+?)\]#', array_shift($e), $match) === 1) {
             $this->hull = $match[1];

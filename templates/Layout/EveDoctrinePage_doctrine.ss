@@ -9,7 +9,7 @@
                        <td class="tcat"></td>
                        <td class="tcat">Hull</td>
                        <!-- td class="tcat">Estimated Price</td //-->
-                       <td class="tcat">Reimbursment</td>
+                       <td class="tcat">Reimbursement</td>
                        <td class="tcat">Can Fly?</td>
                    </tr>
                 </thead>
@@ -19,7 +19,8 @@
                             <td><img src="//image.eveonline.com/Render/{$Fitting.ShipID}_128.png" /></td>
                             <td><a href="$Link">$Name.XML: $TechLevel.XML $Fitting.ShipName.XML</a></td>
                             <!-- td>$Price ISK</td //-->
-                            <td>$Reimbursment.Nice ISK</td>
+                            <!-- td>$ Reimbursment.Nice ISK</td //-->
+                            <td><span class="message <% if Reimbursment = 0 %>bad">No<% else %>good">Yes<% end_if %></span></td>
                             <td><span class="message <% if Fitting.CanFly %>good">Yes<% else %>bad">No<% end_if %></span></td>
                         </tr>
                    <% end_control %>

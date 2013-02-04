@@ -103,5 +103,15 @@ class EveAlliance extends DataObject
             $group->Title = $this->AllianceName;
             $group->write();
         }
+
+        if($group) {
+            if(!Group::get_one('Group', sprintf("Code = 'directors' AND ParentID = %d", $group->ID))) {
+                $adg = new Group();
+                $adg->Code = 'directors';
+                $adg->Title = sprintf('Alliance Directors [%s]', $this->Ticker);
+                $adg->ParentID = $group->ID;
+                $adg->write();
+            }
+        }
     }
 }
