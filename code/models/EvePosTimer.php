@@ -11,7 +11,7 @@ class EvePosTimer extends DataObject
         'Defended'      => "Enum('Yes, No, N/A', 'No')",
         'Timer'         => "Enum('Shield, Final, None', 'Final')",
         'Owner'         => 'Varchar(100)',
-        'Type'          => "Enum('CTA, Tower, Station, iHub, TCU, SBU, PoCo, Other, Roam', 'Tower')",
+        'Type'          => "Enum('CTA, Tower, Station, iHub, TCU, SBU, PoCo, Other, Roam, Strat-Op', 'Tower')",
         'FormUpSolarSystem' => 'Int',
         'FutherInfo'    => 'Text',
         'Hidden'        => 'Boolean'

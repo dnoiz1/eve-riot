@@ -11,6 +11,7 @@ class EveMember extends DataObjectDecorator
                 'JabberUser' => 'Varchar(255)',
                 'JabberToken' => 'Varchar(255)',
                 'JabberAutoConnect' => 'Boolean',
+                'TeamSpeakIdentity' => 'Varchar(255)'
             ),
             'has_many' => array(
                 'EveMemberCharacterCache' => 'EveMemberCharacterCache'

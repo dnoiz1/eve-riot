@@ -23,6 +23,7 @@ class EvePosTimerPage extends Page {
 
         $types = array(
             'CTA'       => 'CTA',
+            'Strat-Op'  => 'Strat-Op',
             'Tower'     => 'Tower',
             'Station'   => 'Station',
             'iHub'      => 'iHub',

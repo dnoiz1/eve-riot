@@ -4,12 +4,12 @@
 		<div class="content">
             <% if CurrentMember.AllowedJabber %>
                 <p>
-                    Your username is: <span class="important">{$CurrentMember.JabberUser}@evetroll.com</span>
+                    Connect to Teamspeak with your name as: <span class="important">{$CurrentMember.NickName}</span>
                 </p>
                 $Content
-                $JabberForm
+                $TeamspeakForm
             <% else %>
-                You do not meet the current requirements to access Jabber
+                You do not meet the current Requirements to access Teamspeak
             <% end_if %>
         </div>
 	</article>
