@@ -24,6 +24,7 @@ class EveMemberTeamspeakPage extends Page {
         return $f;
     }
 }
+
 class EveMemberTeamspeakPage_controller extends Page_controller
 {
     private $socket;
@@ -89,31 +90,27 @@ class EveMemberTeamspeakPage_controller extends Page_controller
         $m = Member::currentUser();
         if(!$m) return new Form();
 
-        $f = new FieldSet(
-            //new CheckBoxField('TeamspeakAutoConnect', 'Auto Connect to Teamspeak', $m->getField('TeamspeakAutoConnect'))
+        $f = new FieldSet();
+        if($m->TeamSpeakIdentity) {
+            $f->push(new ReadOnlyField('', 'Current Teamspeak Identity', $m->TeamSpeakIdentity));
+        }
+        $a = new FieldSet(
+            new FormAction('TeamspeakUpdate', 'click here when you are connected')
         );
 
-        if(!Session::get('Eve.Profile.Teamspeak.Check')) {
-            $a = new FieldSet(
-                new FormAction('TeamspeakCheck', 'click here when you are connected')
-            );
-        } else {
-            $a = new FieldSet(
-                new FormAction('TeamspeakSave', 'Save')
-            );
-        }
-
         $form = new Form($this, 'TeamspeakForm', $f, $a);
-
-        if(Session::get('Eve.Profile.Teamspeak.Updated')) {
-            $form->setMessage('Teamspeak Login Saved', 'good');
+        if(($msg = Session::get('Eve.Profile.Teamspeak.Updated')) && Session::get('Eve.Profile.Teamspeak.Updated') != 1) {
+            $form->setMessage(sprintf("Error: %s", $msg), 'bad');
+            Session::clear('Eve.Profile.Teamspeak.Updated');
+        } elseif(Session::get('Eve.Profile.Teamspeak.Updated')) {
+            $form->setMessage('Teamspeak Roles and Identity Updated Successfully', 'good');
             Session::clear('Eve.Profile.Teamspeak.Updated');
         }
 
         return $form;
     }
 
-    function TeamspeakCheck($data, $form)
+    function TeamspeakUpdate($data, $form)
     {
         $m = Member::CurrentUser();
         if(!$m) $this->redirectBack();
@@ -148,7 +145,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
                 }
             }
 
-            if(!$client) throw new Exception('ServerQuery::NoClientFound');
+            if(!$client) throw new Exception('Make sure you are connected to TeamSpeak with the correct name');
 
             $client_info = $this->ServerQueryCommand('clientinfo', array(
                 'clid' => $client['clid']
@@ -163,12 +160,14 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             //about time, this is what we wanted.
             $identity = $client['client_unique_identifier'];
             $client_db_id = $client['client_database_id'];
-            //var_dump($client);
+            $client_server_groups = explode(",", $client['client_servergroups']);
 
             // find out which groups have 'jabber access'
             $groups = array();
             foreach($m->Groups() as $g) {
-                if($g->hasPerm('JABBER') && $g->Ticker) {
+                if($g->hasPerm('JABBER') && $g->Ticker
+                     //i am a bad person, and i should feel bad.
+                  || $g->Code == 'directors' && $g->ParentID == '41') {
                     $groups[] = $g;
                 }
             }
@@ -184,9 +183,11 @@ class EveMemberTeamspeakPage_controller extends Page_controller
                 }
             }
 
+            $client_groups_required = array();
             foreach($sgroups as $si => $server_group) {
                 foreach($groups as $group) {
-                    if($server_group['name'] == $group->Ticker) {
+                    if($server_group['name'] == $group->Ticker || ($server_group['name'] == 'Directors' && $group->Code == 'directors')) {
+                        $client_groups_required[] = $server_group['sgid'];
                         $server_group_clients = $this->ServerQueryCommand('servergroupclientlist', array('sgid' => $server_group['sgid']));
                         $server_group_clients = $server_group_clients[0];
                         if(strpos($server_group_clients, "|") !== false) {
@@ -208,26 +209,29 @@ class EveMemberTeamspeakPage_controller extends Page_controller
                     }
                 }
             }
-            //var_dump($sgroups);
+
+            foreach(array_diff($client_server_groups, $client_groups_required) as $csg) {
+                //remove user from group
+                $this->ServerQueryCommand('servergroupdelclient', array(
+                    'sgid'      => $csg,
+                    'cldbid'    => $client_db_id
+                ));
+            }
+
+            Session::set('Eve.Profile.Teamspeak.Updated', true);
 
             fclose($this->socket);
         } catch(Exception $e) {
-            return;
+            Session::set('Eve.Profile.Teamspeak.Updated', $e->getMessage());
         }
 
-    }
-    function TeamspeakSave($data, $form)
-    {
-        $m = Member::currentUser();
-        if(!$m) return Director::redirectBack();
-
-        //$m->setField('TeamspeakAutoConnect', $data['TeamspeakAutoConnect']);
-
+        if($identity) {
+            $m->TeamSpeakIdentity = $identity;
+        } else {
+            $m->TeamSpeakIdentity = false;
+        }
         $m->write();
 
-        Session::set('Eve.Profile.Teamspeak.Updated', true);
-
-        Director::redirectBack();
+        return $this->redirectBack();
     }
-
 }
