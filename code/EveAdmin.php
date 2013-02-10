@@ -39,3 +39,10 @@ class EveAllianceAdmin extends ModelAdmin
     static $url_segment = 'alliance';
     static $menu_title = 'Alliance';
 }
+
+class EveBlacklistAdmin extends ModelAdmin
+{
+    static $managed_models = array('EveBlacklist');
+    static $url_segment = 'blacklist';
+    static $menu_title = 'Pilot Blacklist';
+}

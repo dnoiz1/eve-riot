@@ -165,7 +165,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             // find out which groups have 'jabber access'
             $groups = array();
             foreach($m->Groups() as $g) {
-                if($g->hasPerm('JABBER') && $g->Ticker
+                if($g->hasPerm('TEAMSPEAK') && $g->Ticker
                      //i am a bad person, and i should feel bad.
                   || $g->Code == 'directors' && $g->ParentID == '41') {
                     $groups[] = $g;
@@ -184,6 +184,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             }
 
             $client_groups_required = array();
+
             foreach($sgroups as $si => $server_group) {
                 foreach($groups as $group) {
                     if($server_group['name'] == $group->Ticker || ($server_group['name'] == 'Directors' && $group->Code == 'directors')) {
@@ -212,6 +213,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
             foreach(array_diff($client_server_groups, $client_groups_required) as $csg) {
                 //remove user from group
+                if($csg == 6) continue; //skip admins
                 $this->ServerQueryCommand('servergroupdelclient', array(
                     'sgid'      => $csg,
                     'cldbid'    => $client_db_id

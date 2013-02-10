@@ -33,8 +33,16 @@ class EvePermissions extends SiteTree implements PermissionProvider
                 'name'  => 'Manage Logistics Orders',
                 'category' => 'Eve Permissions'
             ),
+            'EVE_BLACKLIST_ADMIN' => array(
+                'name'  => 'Manage Blacklist',
+                'category' => 'Eve Permissions'
+            ),
             'JABBER' => array(
                 'name'  =>  'Allow Jabber Access',
+                'category' => 'External Services'
+            ),
+            'TEAMSPEAK' => array(
+                'name'  =>  'Allow Teamspeak Access',
                 'category' => 'External Services'
             )
         );

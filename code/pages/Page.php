@@ -87,7 +87,7 @@ class Page_Controller extends ContentController {
     function InAlliance()
     {
         if($m = Member::currentUser()) {
-            if($m->Groups()->Count() > 0) return true;
+            if($m->inGroup(41)) return true;
         }
         return false;
     }
