@@ -22,16 +22,18 @@ class EvePosTimerPage extends Page {
         );
 
         $types = array(
-            'CTA'       => 'CTA',
-            'Strat-Op'  => 'Strat-Op',
-            'Tower'     => 'Tower',
-            'Station'   => 'Station',
-            'iHub'      => 'iHub',
-            'TCU'       => 'TCU',
-            'SBU'       => 'SBU',
-            'PoCo'      => 'PoCo',
-            'Other'     => 'Other',
-            'Roam'      => 'Roam'
+            'CTA'           => 'CTA',
+            'Strat-Op'      => 'Strat-Op',
+            'Alliance-Op'   => 'Alliance-Op',
+            'Major-Op'      => 'Major-Op',
+            'Tower'         => 'Tower',
+            'Station'       => 'Station',
+            'iHub'          => 'iHub',
+            'TCU'           => 'TCU',
+            'SBU'           => 'SBU',
+            'PoCo'          => 'PoCo',
+            'Other'         => 'Other',
+            'Roam'          => 'Roam'
         );
         $f->addFieldToTab('Root.Content.TimerOptions',
             new MultiValueDropDownField('HiddenTypes', 'Select the Timer Types to Hide', $types)

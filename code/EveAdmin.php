@@ -26,11 +26,11 @@ class EveTimerAdmin extends ModelAdmin
     static $menu_title = 'POS Timers';
 }
 
-class EveCreditAdmin extends ModelAdmin
+class EveProviderAdmin extends ModelAdmin
 {
-    static $managed_models = array('EveCreditProvider');
-    static $url_segment = 'credit-providers';
-    static $menu_title = 'Credit Provider';
+    static $managed_models = array('EveCreditProvider', 'DustMercTokenProvider');
+    static $url_segment = 'api-providers';
+    static $menu_title = 'API Providers';
 }
 
 class EveAllianceAdmin extends ModelAdmin

@@ -32,7 +32,7 @@ class ScrapePosTimersJob extends AbstractQueuedJob
 
     public function setup()
     {
-        $c = curl_init("http://map.pleaseignore.com/timers/timer.pl");
+        $c = curl_init("http://map.pleaseignore.com/timers/timer2.pl");
         curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
         $html = curl_exec($c);
         curl_close($c);

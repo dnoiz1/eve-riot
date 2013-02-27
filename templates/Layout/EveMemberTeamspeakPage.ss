@@ -2,7 +2,7 @@
 	<article>
 		<h1>$Title</h1>
 		<div class="content">
-            <% if CurrentMember.AllowedJabber %>
+            <% if CurrentMember.AllowedTeamspeak %>
                 <p>
                     Connect to Teamspeak with your name as: <span class="important">{$CurrentMember.NickName}</span>
                 </p>

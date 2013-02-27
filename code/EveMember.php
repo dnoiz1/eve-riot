@@ -35,6 +35,11 @@ class EveMember extends DataObjectDecorator
         return Permission::check('JABBER');
     }
 
+    function AllowedTeamspeak()
+    {
+        return Permission::check('TEAMSPEAK');
+    }
+
     function ApiKeys()
     {
         return EveApi::get('EveApi', sprintf('MemberID = %d', $this->owner->ID));
@@ -83,7 +88,9 @@ class EveMember extends DataObjectDecorator
 
         foreach($groups as $g) {
             if(!$this->owner->inGroup($g)) {
-                Group::get_by_id('Group', (int)$g)->Members()->add($this->owner);
+                if($group = Group::get_by_id('Group', (int)$g)) {
+                    $group->Members()->add($this->owner);
+                }
             }
         }
 
