@@ -95,6 +95,8 @@ class Page_Controller extends ContentController {
     function NextTimer()
     {
        if(!$this->InAlliance()) return false;
-       return EvePosTimerPage::get_one('EvePosTimerPage', "`SiteTree_Live`.`UrlSegment` = 'op-timers'")->NextTimer();
+       if($this->current_stage() == 'Live') {
+           return EvePosTimerPage::get_one('EvePosTimerPage', "`SiteTree_Live`.`UrlSegment` = 'op-timers'")->NextTimer();
+       }
     }
 }

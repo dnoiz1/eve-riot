@@ -22,12 +22,18 @@ class EveMember extends DataObjectDecorator
         );
     }
 
-    function NickNameToJabberUser()
+    function NickNameToJabberUser($suffix = false)
     {
         $nn = strtolower($this->owner->Nickname);
         $nn = trim($nn);
         $nn = str_replace(' ', '_', $nn);
-        return preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
+        $nn = preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
+        if($suffix) $nn .= $suffix;
+
+        if(Member::get_one('Member', sprintf("JabberUser = '%s' AND ID <> %d", Convert::raw2sql($nn), $this->owner->ID))) {
+            return $this->NickNameToJabberUser($suffix++);
+        }
+        return $nn;
     }
 
     function AllowedJabber()

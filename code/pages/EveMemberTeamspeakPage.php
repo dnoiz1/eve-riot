@@ -187,7 +187,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
             foreach($sgroups as $si => $server_group) {
                 foreach($groups as $group) {
-                    if($server_group['name'] == $group->Ticker || ($server_group['name'] == 'Directors' && $group->Code == 'directors')) {
+                    if($server_group['name'] == $group->Ticker || ($server_group['name'] == 'Directors' && $group->Code == 'directors' && $group->ParentID == 41)) {
                         $client_groups_required[] = $server_group['sgid'];
                         $server_group_clients = $this->ServerQueryCommand('servergroupclientlist', array('sgid' => $server_group['sgid']));
                         $server_group_clients = $server_group_clients[0];
