@@ -1,4 +1,3 @@
-
 <?php
 class Page extends SiteTree {
 	public static $has_one = array(
@@ -49,6 +48,14 @@ class Page_Controller extends ContentController {
 
 	public function init() {
 		parent::init();
+
+        if(Permission::check('ADMIN')) {
+            if($m = Member::CurrentUser()) {
+                if($m->NickName == 'Chrytis') {
+                    var_dump($this->request->getHeaders());
+                }
+            }
+        }
 
 		// Note: you should use SS template require tags inside your templates
 		// instead of putting Requirements calls here.  However these are

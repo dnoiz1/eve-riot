@@ -8,6 +8,10 @@ class EveDoctrine extends DataObject
         'Hidden'        => 'Boolean',
     );
 
+    static $has_one = array(
+        'EveDoctrinePage' => 'EveDoctrinePage'
+    );
+
     static $many_many = array(
         'EveDoctrineShip' => 'EveDoctrineShip'
     );
@@ -46,7 +50,8 @@ class EveDoctrine extends DataObject
     function Link($action = false)
     {
         $l = strtolower(str_replace(array(' ', '/', '.'), '-', $this->Title));
-        return Controller::CurrentPage()->Link(sprintf('%s/%s', $l, $action));
+        //return Controller::CurrentPage()->Link(sprintf('%s/%s', $l, $action));
+        return $this->EveDoctrinePage()->Link(sprintf('%s/%s', $l, $action));
     }
 
     function MenuTitle()

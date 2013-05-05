@@ -66,7 +66,7 @@ class EveJabberPingPage_controller extends Page_controller
             foreach($m->Groups() as $g) {
                 if($g->hasPerm('JABBER') && $g->ApiManaged) {
                     // i am a bad person
-                    if($g->ID != 41) {
+                    if($g->ID != 41 && $g->ID != 274) {
                         if($g->Code != 'directors') {
                             $dst[$g->ID] = $g->Title;
                         }

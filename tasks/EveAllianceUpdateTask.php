@@ -20,6 +20,8 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
     private $alliances    = array();
     private $corporations = array();
     private $allianceID   = 0;
+    public  $debug        = false;
+    //public  $debug        = true;
 
 	public function getTitle()
     {
@@ -56,7 +58,8 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
             $this->corporations = array_shift($alliances);
 
             $alliance = EveAlliance::get_by_id('EveAlliance', $this->allianceID);
-            //printf(" - %s <%s>\n", $alliance->AllianceName, $alliance->Ticker);
+
+            if($this->debug) printf(" - %s <%s>\n", $alliance->AllianceName, $alliance->Ticker);
             /* create Alliance Group here if needed */
 
 
@@ -79,7 +82,7 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
                 $c->write();
             }
 
-            //printf(" -- %s [%s]\n", $c->CorpName, $c->Ticker);
+            if($this->debug) printf(" -- %s [%s]\n", $c->CorpName, $c->Ticker);
 
             if(!$g = Group::get_one('Group', sprintf("ID = '%s' AND ParentID = %d", $c->GroupID, $alliance->Group()->ID))) {
                 $g = new Group();
@@ -113,7 +116,7 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
 
     		if($this->repeat) {
     	    	$job = new EveAllianceUpdateJob();
-    			singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			if(!$this->debug) singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;

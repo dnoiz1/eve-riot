@@ -44,9 +44,12 @@ class EveApi extends DataObject {
     function isValid()
     {
         if(!$this->Member()) return new DataObjectSet(array(array('Reason' => 'No Assoc Member')));
+
+        /* // removing leading cause of tech support queries...
         if(time() - strtotime($this->Member()->LastVisited) > (86400 * 30)) {
             return new DataObjectSet(array(array('Reason' => 'Member has not logged in for one month')));
         }
+        */
 
         $errors = array();
         try {

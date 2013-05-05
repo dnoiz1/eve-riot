@@ -40,3 +40,4 @@
 	</article>
 </div>
 <% include SideBar %>
+<% include DoctrineSideBar %>

@@ -7,7 +7,7 @@ class EveDoctrinePage extends Page
 
     function Doctrines()
     {
-        return EveDoctrine::get('EveDoctrine', "Hidden = 0");
+        return EveDoctrine::get('EveDoctrine', sprintf("Hidden = 0 AND EveDoctrinePageID = %d", $this->ID));
     }
 
     function Doctrine()
