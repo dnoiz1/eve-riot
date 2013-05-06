@@ -7,13 +7,13 @@
             <p>
                 <label>Active Groups:</label>
 
-                <% if CurrentMember.Groups %>
-                    <% control CurrentMember.Groups %>
+                <% if $CurrentMember.Groups %>
+                    <% loop $CurrentMember.Groups %>
                         $Title<% if last %><% else %>, <% end_if %>
-                    <% end_control %>
+                    <% end_loop %>
                 <% end_if %>
             </p>
-           <table class="full tborder">
+           <table class="table table-striped table-bordered table-condensed">
                 <thead>
                     <th>Key ID</th>
                     <th>vCode</th>
@@ -21,15 +21,15 @@
                     <th></th>
                 </thead>
                 <tbody>
-                    <% if ApiKeys %>
-                        <% control ApiKeys %>
+                    <% if $ApiKeys %>
+                        <% loop $ApiKeys %>
                             <tr>
                                 <td>$KeyID</td>
                                 <td>$vCode</td>
-                                <td><% if isValid = 1 %><div class="message good">Yes</div><% else %><% control isValid %><div class="message bad">$Reason</div><% end_control %><% end_if %></td>
+                                <td><% if $isValid = 1 %><div class="message good">Yes</div><% else %><% loop $Validate %><div class="message bad">$Reason</div><% end_loop %><% end_if %></td>
                                 <td class="action"><a href="/profile/api-keys/delete/$ID"><img src="/cms/images/delete.gif" /></a></td>
                             </tr>
-                        <% end_control %>
+                        <% end_loop %>
                     <% else %>
                         <tr>
                             <td colspan="4" style="text-align: center">You have not added any API Keys</td>

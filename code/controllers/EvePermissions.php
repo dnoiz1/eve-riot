@@ -9,7 +9,6 @@ class EvePermissions extends SiteTree implements PermissionProvider
     public function providePermissions()
     {
         return array(
-            ),
             'EVE_TIMERS' => array(
                 'name'  => 'Manage Timers',
                 'category' => 'Eve Permissions'
@@ -30,7 +29,7 @@ class EvePermissions extends SiteTree implements PermissionProvider
                 'name'  =>  'Allow Jabber Access',
                 'category' => 'External Services'
             ),
-            'Mumble' => array(
+            'MUMBLE' => array(
                 'name'  =>  'Allow Mumble Access',
                 'category' => 'External Services'
             )

@@ -5,7 +5,10 @@ class EveApiPage extends Page
 
 class EveApiPage_controller extends Page_controller
 {
-    static $allowed_actions = array('delete');
+    static $allowed_actions = array(
+        'APIForm',
+        'delete'
+    );
 
     function init()
     {
@@ -48,10 +51,10 @@ JS
     {
         $api = new EveApi();
         $form->saveInto($api);
-        $api->setField('MemberID', Member::currentMember()->ID);
+        $api->setField('MemberID', Member::currentUser()->ID);
 
         $api->write();
-        Director::redirectBack();
+        $this->redirectBack();
     }
 
     function delete($params)
@@ -67,7 +70,7 @@ JS
     {
         $m = Member::CurrentUser();
         if($m) $m->UpdateGroupsFromAPI();
-        Director::redirectBack();
+        $this->redirectBack();
     }
 
     function Groups()
@@ -84,7 +87,7 @@ JS
 
         return new DataObjectset($gs);
 */
-        if($m = Member::CurrentMember()) {
+        if($m = Member::CurrentUser()) {
             return $m->Groups();
         }
         return false;

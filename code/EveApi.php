@@ -1,6 +1,6 @@
 <?php
 
-require_once('../mysite/thirdparty/ale/factory.php');
+require_once('../eacc/thirdparty/ale/factory.php');
 
 class EveApi extends DataObject {
     public $ale;
@@ -41,9 +41,10 @@ class EveApi extends DataObject {
         return ($m = Member::get_by_id('Member', (int)$this->MemberID)) ? $m->NickName() : 'Unassigned';
     }
 
-    function isValid()
+    /* return errors */
+    function Validate()
     {
-        if(!$this->Member()) return new DataObjectSet(array(array('Reason' => 'No Assoc Member')));
+        if(!$this->Member()) return new ArrayList(array(array('Reason' => 'No Assoc Member')));
 
         /* // removing leading cause of tech support queries...
         if(time() - strtotime($this->Member()->LastVisited) > (86400 * 30)) {
@@ -53,14 +54,16 @@ class EveApi extends DataObject {
 
         $errors = array();
         try {
-            if(!$this->Valid) return new DataObjectSet(array(array('Reason' => 'Key too old, please create a new one')));
+/*/
+            if(!$this->Valid) return new ArrayList(array(array('Reason' => 'Key too old, please create a new one')));
 
             //check key keys are fresh...
             if(!$this->ID) {
                 if($this->KeyID < (EveApi::get_one("EveApi", '', '', 'ID DESC')->ID - 200)) {
-                    return new DataObjectSet(array(array('Reason' => 'Key too old, please create a new one')));
+                    return new ArrayList(array(array('Reason' => 'Key too old, please create a new one')));
                 }
             }
+*/
 
             $this->ale->setKey($this->KeyID, $this->vCode);
             $info = $this->ale->Account->APIKeyInfo();
@@ -90,7 +93,7 @@ class EveApi extends DataObject {
                 'CharacterSheet' => 8,
                 'CharacterInfo' => 8388608,
                 'KillLog' => 256,
-                'FacWarStats' => 64
+                //'FacWarStats' => 64
             );
 
             foreach($required as $k => $v) {
@@ -101,14 +104,19 @@ class EveApi extends DataObject {
         } catch(Exception $e) {
             $errors[] = array('Reason' => $e->getMessage());
         }
-        return (count($errors) > 0) ? new DataObjectSet($errors) : true;
+        return new ArrayList($errors);
+    }
+
+    function isValid()
+    {
+//        return ($this->Validate()->Count() > 0) ? false : true;
+        return true;
     }
 
     function hasAccess($mask = 0)
     {
         /* need to call this from isValid, so prob  rework this */
-        $isValid = $this->isValid();
-        $errors = ($isValid !== true) ?  array() : array();
+//        $errors = ($this->isValid()) ?  array() : array();
 
         try {
             $this->ale->setKey($this->KeyID, $this->vCode);
@@ -122,12 +130,12 @@ class EveApi extends DataObject {
             $errors[] = array('Reason' => 'Invalid Key');
         }
 
-        return (count($errors) > 0) ? new DataObjectSet($errors) : true;
+        return (count($errors) > 0) ? new ArrayList($errors) : true;
     }
 
     function Characters()
     {
-        if($this->isValid() !== true) return array();
+ //       if(!$this->isValid()) return array();
         $chars = array();
 
         $this->ale->setKey($this->KeyID, $this->vCode);
@@ -149,7 +157,7 @@ class EveApi extends DataObject {
         $groups = array();
         $rank = array(99 => 'Visitor');
 
-        if($this->isValid() !== true) return array('Groups' => $groups, 'Rank' => $rank);
+        if(!$this->isValid()) return array('Groups' => $groups, 'Rank' => $rank);
 
         foreach($this->Characters() as $c) {
             // first check corp
@@ -208,15 +216,18 @@ class EveApi extends DataObject {
     function onBeforeWrite()
     {
         parent::onBeforeWrite();
+/*
         if(!$this->ID) {
             if(!$this->isValid()) {
-                $this->Valid = false;
+                $this->setField('Valid', false);
             }
         }
+*/
     }
 
     function onAfterWrite()
     {
+/*
         $m = Member::get_by_id('Member', (int)$this->MemberID);
         if($m) {
             foreach($this->Characters() as $c) {
@@ -242,6 +253,7 @@ class EveApi extends DataObject {
                $m->updateGroupsFromAPI();
             }
         }
+*/
         return parent::onAfterWrite();
     }
 

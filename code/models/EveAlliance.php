@@ -1,6 +1,6 @@
 <?php
 
-require_once('../mysite/thirdparty/ale/factory.php');
+require_once('../eacc/thirdparty/ale/factory.php');
 
 class EveAlliance extends DataObject
 {
