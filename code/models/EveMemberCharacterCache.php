@@ -7,7 +7,8 @@ class EveMemberCharacterCache extends DataObject
         'CharacterName'     => 'Varchar(255)',
         'CorporationID'     => 'Int',
         'CorporationName'   => 'Varchar(255)',
-        'APIHash'           => 'Varchar(32)'
+        'AllianceID'     => 'Int',
+        'AllianceName'   => 'Varchar(255)'
     );
 
     static $has_one = array(
@@ -19,7 +20,9 @@ class EveMemberCharacterCache extends DataObject
         'CharacterID',
         'CharacterName',
         'CorporationID',
-        'CorporationName'
+        'CorporationName',
+        'AllianceID',
+        'AllianceName'
     );
 
     function EveCorp()

@@ -1,5 +1,5 @@
 <?php
-class Page extends SiteTree {
+class oldPage extends SiteTree {
 	public static $has_one = array(
 	);
     function ShowInMainMenu()
@@ -26,7 +26,7 @@ class Page extends SiteTree {
         return $f;
     }
 }
-class Page_Controller extends ContentController {
+class oldPage_Controller extends ContentController {
 
 	/**
 	 * An array of actions that can be accessed via a request. Each array element should be an action name, and the

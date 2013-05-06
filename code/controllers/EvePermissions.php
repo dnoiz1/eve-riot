@@ -9,9 +9,6 @@ class EvePermissions extends SiteTree implements PermissionProvider
     public function providePermissions()
     {
         return array(
-            'EVE_DOCTRINE' => array(
-                'name'  => 'Manage Doctrines',
-                'category' => 'Eve Permissions'
             ),
             'EVE_TIMERS' => array(
                 'name'  => 'Manage Timers',
@@ -25,14 +22,6 @@ class EvePermissions extends SiteTree implements PermissionProvider
                 'name'  => 'View Complete Roster',
                 'category' => 'Eve Permissions'
             ),
-            'EVE_LOGISTICS_CONFIGURE' => array(
-                'name'  => 'Edit Logistics Configuration',
-                'category' => 'Eve Permissions'
-            ),
-            'EVE_LOGISTICS_ADMIN' => array(
-                'name'  => 'Manage Logistics Orders',
-                'category' => 'Eve Permissions'
-            ),
             'EVE_BLACKLIST_ADMIN' => array(
                 'name'  => 'Manage Blacklist',
                 'category' => 'Eve Permissions'
@@ -41,8 +30,8 @@ class EvePermissions extends SiteTree implements PermissionProvider
                 'name'  =>  'Allow Jabber Access',
                 'category' => 'External Services'
             ),
-            'TEAMSPEAK' => array(
-                'name'  =>  'Allow Teamspeak Access',
+            'Mumble' => array(
+                'name'  =>  'Allow Mumble Access',
                 'category' => 'External Services'
             )
         );
