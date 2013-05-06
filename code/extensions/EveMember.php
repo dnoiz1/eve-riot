@@ -1,6 +1,6 @@
 <?php
 
-class EveMember extends DataObjectDecorator
+class EveMember extends DataExtension
 {
 
     function extraStatics($class = null, $extension = null)
@@ -81,18 +81,15 @@ class EveMember extends DataObjectDecorator
             }
         }
 
-        $nonApiGroups = Group::get('Group', sprintf("ApiManaged = 0"))->map('ID', 'ID');
-
-
-        //var_dump($groups);
+        $nonApiGroups = Group::get('Group', sprintf("ApiManaged = 0"));
 
         $membergroups = $this->owner->Groups();
         if($membergroups) foreach($membergroups as $g) {
             if(!in_array($g->Code, $groups)) {
                 // only work with API groups
-                if(in_array($g->ID, $nonApiGroups)) continue;
+                if($nonApiGroups->filter('ID', $g->ID)->Count() !== 0) continue;
                 // remove from groups
-                $this->owner->Groups()->remove($g->ID);
+                $this->owner->Groups()->remove($g);
                 $this->owner->Groups()->write();
             }
         }

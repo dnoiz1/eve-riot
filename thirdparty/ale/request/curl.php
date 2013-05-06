@@ -85,7 +85,7 @@ class AleRequestCurl implements AleInterfaceRequest  {
 
 		if ($this->config['certificate']) {
 			curl_setopt ($ch, CURLOPT_SSL_VERIFYPEER, true);
-			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, true);
+			curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 2);
 			curl_setopt ($ch, CURLOPT_CAINFO, $this->config['certificate']);
 		}
 

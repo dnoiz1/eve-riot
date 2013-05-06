@@ -37,10 +37,10 @@ class EvePosTimer extends DataObject
     );
 
     static $default_sort = "TimerEnds ASC";
-
+/*
     function getCMSFields()
     {
-        $f = parent::getCMSFields();
+        $f = new FieldList();
         $date = new DateTimeField('TimerEnds', 'Timer Ends (EVE Time)');
         $date->getDateField()->setConfig('showcalendar', true);
         $date->getDateField()->setConfig('dateformat', 'dd/MM/YYYY');
@@ -92,30 +92,30 @@ class EvePosTimer extends DataObject
 
     /* no idea why SS_DateTime doesnt return a
      * SS_DateTime Object all the time?
-     */
-
+     * /
+*/
     function TimerEndsTimeStamp()
     {
         $fuckoff = strtotime($this->TimerEnds);
         return $fuckoff;
     }
 
-    function canView()
+    function canView($member = null)
     {
         return true;
     }
 
-    function canCreate()
+    function canCreate($member = null)
     {
-        return $this->canEdit();
+        return Permission::check('EVE_TIMERS');
     }
 
-    function canDelete()
+    function canDelete($member = null)
     {
-        return $this->canEdit();
+        return Permission::check('EVE_TIMERS');
     }
 
-    function canEdit()
+    function canEdit($member = null)
     {
         return Permission::check('EVE_TIMERS');
     }

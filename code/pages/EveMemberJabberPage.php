@@ -40,7 +40,7 @@ class EveMemberJabberPage_controller extends Page_controller
     function JabberSave($data, $form)
     {
         $m = Member::currentUser();
-        if(!$m) return Director::redirectBack();
+        if(!$m) return $this->redirectBack();
 
 //        $m->setField('JabberUser', $data['JabberUser']);
 //        $m->setField('JabberPasswd', $data['JabberPasswd']);
@@ -50,13 +50,13 @@ class EveMemberJabberPage_controller extends Page_controller
 
         Session::set('Eve.Profile.Jabber.Updated', true);
 
-        Director::redirectBack();
+        $this->redirectBack();
     }
 /*
     function JabberDelete()
     {
         $m = Member::currentUser();
-        if(!$m) return Director::redirectBack();
+        if(!$m) return $this->redirectBack();
 
         $m->setField('JabberUser', '');
         $m->setField('JabberPasswd', '');
@@ -64,7 +64,7 @@ class EveMemberJabberPage_controller extends Page_controller
         $m->write();
 
         Session::set('Eve.Profile.Jabber.Updated', true);
-        Director::redirectBack();
+        $this->redirectBack();
 
     }
 */

@@ -41,36 +41,35 @@ class EveApi extends DataObject {
         return ($m = Member::get_by_id('Member', (int)$this->MemberID)) ? $m->NickName() : 'Unassigned';
     }
 
-    /* return errors */
-    function Validate()
+    function APIErrors()
     {
         if(!$this->Member()) return new ArrayList(array(array('Reason' => 'No Assoc Member')));
 
         /* // removing leading cause of tech support queries...
         if(time() - strtotime($this->Member()->LastVisited) > (86400 * 30)) {
-            return new DataObjectSet(array(array('Reason' => 'Member has not logged in for one month')));
+            return new ArrayList(array(array('Reason' => 'Member has not logged in for one month')));
         }
         */
 
         $errors = array();
         try {
-/*/
-            if(!$this->Valid) return new ArrayList(array(array('Reason' => 'Key too old, please create a new one')));
+//            if(!$this->Valid) return new ArrayList(array(array('Reason' => 'Key too old, please create a new one')));
 
             //check key keys are fresh...
+            /*
             if(!$this->ID) {
                 if($this->KeyID < (EveApi::get_one("EveApi", '', '', 'ID DESC')->ID - 200)) {
                     return new ArrayList(array(array('Reason' => 'Key too old, please create a new one')));
                 }
             }
-*/
+            */
 
             $this->ale->setKey($this->KeyID, $this->vCode);
             $info = $this->ale->Account->APIKeyInfo();
 
             /* else {
                 if($this->KeyID < (EveApi::get_one("EveApi", sprintf("KeyID < %d", (int)$this->KeyID), '', 'ID DESC')->ID - 200)) {
-                   return new DataObjectSet(array(array('Reason' => 'Key too old, please create a new one')));
+                   return new ArrayList(array(array('Reason' => 'Key too old, please create a new one')));
                 }
             }*/
 
@@ -109,14 +108,14 @@ class EveApi extends DataObject {
 
     function isValid()
     {
-//        return ($this->Validate()->Count() > 0) ? false : true;
-        return true;
+        return ($this->ApiErrors()->Count() > 0) ? false : true;
     }
 
     function hasAccess($mask = 0)
     {
         /* need to call this from isValid, so prob  rework this */
-//        $errors = ($this->isValid()) ?  array() : array();
+        $isValid = $this->isValid();
+        $errors = ($isValid !== true) ?  array() : array();
 
         try {
             $this->ale->setKey($this->KeyID, $this->vCode);
@@ -135,7 +134,7 @@ class EveApi extends DataObject {
 
     function Characters()
     {
- //       if(!$this->isValid()) return array();
+        if($this->isValid() !== true) return array();
         $chars = array();
 
         $this->ale->setKey($this->KeyID, $this->vCode);
@@ -157,7 +156,7 @@ class EveApi extends DataObject {
         $groups = array();
         $rank = array(99 => 'Visitor');
 
-        if(!$this->isValid()) return array('Groups' => $groups, 'Rank' => $rank);
+        if($this->isValid() !== true) return array('Groups' => $groups, 'Rank' => $rank);
 
         foreach($this->Characters() as $c) {
             // first check corp
@@ -216,18 +215,15 @@ class EveApi extends DataObject {
     function onBeforeWrite()
     {
         parent::onBeforeWrite();
-/*
         if(!$this->ID) {
             if(!$this->isValid()) {
-                $this->setField('Valid', false);
+                $this->Valid = false;
             }
         }
-*/
     }
 
     function onAfterWrite()
     {
-/*
         $m = Member::get_by_id('Member', (int)$this->MemberID);
         if($m) {
             foreach($this->Characters() as $c) {
@@ -253,7 +249,6 @@ class EveApi extends DataObject {
                $m->updateGroupsFromAPI();
             }
         }
-*/
         return parent::onAfterWrite();
     }
 

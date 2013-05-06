@@ -1,6 +1,6 @@
 <?php
 
-require_once('../mysite/thirdparty/ale/factory.php');
+require_once('../eacc/thirdparty/ale/factory.php');
 
 class EveCharacter extends ViewableData
 {
@@ -72,7 +72,7 @@ class EveCharacter extends ViewableData
 
     function Corp()
     {
-        if($cache) return $cache->EveCorp();
+        if($this->cache) return $cache->EveCorp();
         return EveCorp::get_one('EveCorp', sprintf("CorpID = '%d'", $this->CorporationID()));
     }
 

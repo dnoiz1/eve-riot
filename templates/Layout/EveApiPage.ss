@@ -26,7 +26,7 @@
                             <tr>
                                 <td>$KeyID</td>
                                 <td>$vCode</td>
-                                <td><% if $isValid = 1 %><div class="message good">Yes</div><% else %><% loop $Validate %><div class="message bad">$Reason</div><% end_loop %><% end_if %></td>
+                                <td><% if $isValid = 1 %><div class="message good">Yes</div><% else %><% loop $APIErrors %><div class="message bad">$Reason</div><% end_loop %><% end_if %></td>
                                 <td class="action"><a href="/profile/api-keys/delete/$ID"><img src="/cms/images/delete.gif" /></a></td>
                             </tr>
                         <% end_loop %>

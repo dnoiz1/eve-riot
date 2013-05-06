@@ -33,12 +33,12 @@ JS
 
     function APIForm()
     {
-        $f = new FieldSet(
+        $f = new FieldList(
             new NumericField('KeyID'),
             new TextField('vCode')
         );
 
-        $a = new FieldSet(
+        $a = new FieldList(
             new FormAction('addAPI', 'Submit')
         );
 
@@ -63,7 +63,7 @@ JS
 
         $k = DataObject::get_one('EveApi', sprintf("MemberID = '%d' AND ID = '%d'", Member::CurrentUser()->ID, $id));
         if($k) $k->delete();
-        Director::RedirectBack();
+        $this->RedirectBack();
     }
 
     function updateNow()

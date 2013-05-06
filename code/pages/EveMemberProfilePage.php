@@ -4,7 +4,7 @@ class EveProfilePage extends MemberProfilePage implements PermissionProvider {
     {
 
         if(!Member::currentUser()) {
-            return new DataObjectSet();
+            return new ArrayList();
         }
 
         return parent::Children();

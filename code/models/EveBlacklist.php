@@ -24,23 +24,24 @@ class EveBlacklist extends DataObject
         'AddedBy'
     );
 
-    function canCreate()
+    function canCreate($member = null)
     {
         return Permission::check('EVE_BLACKLIST_ADMIN');
     }
 
-    function canView()
+    function canView($member = null)
     {
         return Permission::check('EVE_BLACKLIST_ADMIN');
     }
 
-    function canEdit()
+    function canEdit($member = null)
     {
         return Permission::check('EVE_BLACKLIST_ADMIN');
     }
 
-    function canDelete()
+    function canDelete($member = null)
     {
         return Permission::check('EVE_BLACKLIST_ADMIN');
     }
+
 }
