@@ -7,6 +7,14 @@ class EveStaticData extends Page_Controller
 {
     //static $URLSegment = 'eveStaticData';
 
+    private $allowed_actions = array(
+        'solarSystems'
+    );
+
+    public static $url_handlers = array(
+        'solarSystems/$ID' => 'solarSystems'
+    );
+
     static function packagedSizes($hullClass)
     {
         $map = array(
@@ -71,7 +79,7 @@ class EveStaticData extends Page_Controller
      * not really happy with the output format, but its for the autosuggest.. so
      */
 
-    public function solarSystems($request)
+    public function solarSystems(SS_HTTPRequest $request)
     {
         $name = $request->param('ID');
         //if(!$name) return $this->httpError(404);

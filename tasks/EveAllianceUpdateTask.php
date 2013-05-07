@@ -66,7 +66,7 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
             /* end create */
 
             // remove groups for corps that are no longer in alliance
-            $corps = EveCorp::get('EveCorp', sprintf("CorpID NOT IN '%s' AND ApiManaged = 0", implode($this->corporations, "','")));
+            $corps = EveCorp::get('EveCorp', sprintf("CorpID NOT IN '%s' AND ApiManaged = 1", implode($this->corporations, "','")));
             foreach($corps as $k => $c) {
                 if($c->Group()->ParentID == $alliance->Group()->ID) {
                     $c->Group()->delete();

@@ -24,8 +24,23 @@ class EveAlliance extends DataObject
 
     static $summary_fields = array(
         'AllianceName',
-        'Ticker'
+        'Ticker',
+        'ExecutiveCorpName',
+        'MemberCount'
     );
+
+    static $field_labels = array(
+        'ExecutiveCorpName' => 'Executive Corp'
+    );
+
+    static $casting = array(
+        'ExecutiveCorpName' => 'Varchar(100)',
+    );
+
+    function getTitle()
+    {
+        return $this->AllianceName;
+    }
 
     function getCMSFields()
     {
@@ -36,6 +51,11 @@ class EveAlliance extends DataObject
         $f->replaceField('MemberCount', new ReadOnlyField('MemberCount'));
 
         return $f;
+    }
+
+    function ExecuteCorpName()
+    {
+        return ($ec = EveCorp::get_one()->filter(array('CorpID' => $this->ExecutiveCorpID))) ? $ec->CorpName : '';
     }
 
     function InfoFromAPI()
@@ -102,16 +122,19 @@ class EveAlliance extends DataObject
             $group->Code =  $this->Ticker;
             $group->Title = $this->AllianceName;
             $group->write();
-        }
 
-        if($group) {
-            if(!Group::get_one('Group', sprintf("Code = 'directors' AND ParentID = %d", $group->ID))) {
-                $adg = new Group();
-                $adg->Code = 'directors';
-                $adg->Title = sprintf('Alliance Directors [%s]', $this->Ticker);
-                $adg->ParentID = $group->ID;
-                $adg->write();
-            }
+            $this->GroupID = $group->ID;
+        }
+    }
+
+    function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+        if($group = $this->Group()) {
+            if($group->ID) $group->delete();
+        }
+        foreach(EveCorp::get()->filter(array('EveAllianceID' => $this->ID)) as $corp) {
+            $corp->delete();
         }
     }
 }

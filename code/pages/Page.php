@@ -103,7 +103,7 @@ class oldPage_Controller extends ContentController {
     {
        if(!$this->InAlliance()) return false;
        if($this->current_stage() == 'Live') {
-           return EvePosTimerPage::get_one('EvePosTimerPage', "`SiteTree_Live`.`UrlSegment` = 'op-timers'")->NextTimer();
+           return EveTimerPage::get_one('EveTimerPage', "`SiteTree_Live`.`UrlSegment` = 'op-timers'")->NextTimer();
        }
     }
 }

@@ -4,19 +4,21 @@ class EveMember extends DataExtension
 {
 
     private static $db = array(
-                'CharacterID' => 'Int',
-                'JabberUser' => 'Varchar(255)',
-                'JabberToken' => 'Varchar(255)',
-                'JabberAutoConnect' => 'Boolean',
-                'TeamSpeakIdentity' => 'Varchar(255)',
-                'HasDonated'    => 'Boolean'
-            );
+        'CharacterID' => 'Int',
+        'JabberUser' => 'Varchar(255)',
+        'JabberToken' => 'Varchar(255)',
+        'JabberAutoConnect' => 'Boolean',
+        'TeamSpeakIdentity' => 'Varchar(255)',
+        'HasDonated'    => 'Boolean'
+    );
+
     static $has_many = array(
-                'EveMemberCharacterCache' => 'EveMemberCharacterCache'
-            );
+        'EveMemberCharacterCache' => 'EveMemberCharacterCache'
+    );
+
     static $defaults = array(
-                'JabberAutoConnect' => 1
-            );
+        'JabberAutoConnect' => 1
+    );
 
     function FirstNameToJabberUser($suffix = false)
     {
@@ -34,12 +36,12 @@ class EveMember extends DataExtension
 
     function AllowedJabber()
     {
-        return Permission::check('JABBER');
+        return Permission::checkMember($this->owner->ID, 'JABBER');
     }
 
     function AllowedTeamspeak()
     {
-        return Permission::check('TEAMSPEAK');
+        return Permission::checkMember($this->owner->ID, 'TEAMSPEAK');
     }
 
     function ApiKeys()
@@ -78,7 +80,7 @@ class EveMember extends DataExtension
             */
         }
 
-        user_error(print_r($groups, true), E_USER_NOTICE);
+        //user_error(print_r($groups, true), E_USER_NOTICE);
 
         $nonApiGroups = Group::get('Group', sprintf("ApiManaged = 0"));
 
@@ -86,7 +88,7 @@ class EveMember extends DataExtension
         if($membergroups) foreach($membergroups as $g) {
             if(!in_array($g->ID, $groups)) {
                 // only work with API groups
-                user_error(print_r($g, true), E_USER_NOTICE);
+                //user_error(print_r($g, true), E_USER_NOTICE);
                 if($nonApiGroups->filter('ID', $g->ID)->Count() !== 0) continue;
 
 
@@ -172,25 +174,26 @@ class EveMember extends DataExtension
             $first = false;
             $FirstName_as_toon = false;
             $chars = $this->Characters();
-            if($chars) foreach($chars as $c) {
-                if(!$first) $first = $c['name'];
-                if($c['name'] == $this->owner->FirstName) {
-                    $this->owner->setField('CharacterID', (int)$c['characterID']);
-                    $FirstName_as_toon = true;
-                    break;
+            if($chars) {
+                    foreach($chars as $c) {
+                    if(!$first) $first = $c['name'];
+                    if($c['name'] == $this->owner->FirstName) {
+                        $this->owner->setField('CharacterID', (int)$c['characterID']);
+                        $FirstName_as_toon = true;
+                        break;
+                    }
                 }
+                //if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
+                // still doesnt force toon names, but also doesnt fuckup when api does
+                //if(!$FirstName_as_toon) $this->owner->FirstName = $this->owner->FirstName;
+                if(!$FirstName_as_toon) $this->owner->FirstName = $first;
+                $this->owner->JabberUser = $this->FirstNameToJabberUser();
             }
-            //if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
-            // still doesnt force toon names, but also doesnt fuckup when api does
-            //if(!$FirstName_as_toon) $this->owner->FirstName = $this->owner->FirstName;
-            if(!$FirstName_as_toon) $this->owner->FirstName = $first;
-
-            $this->owner->JabberUser = $this->FirstNameToJabberUser();
         }
 
         if($this->owner->isChanged('NumVisit')) {
             $gen = new RandomGenerator();
-            $this->owner->JabberToken = $gen->generateHash('sha1');
+            $this->owner->JabberToken = $gen->randomToken('sha1');
         }
         /*
         if($this->owner->isChanged('CharacterID') && $main = $this->MainCharacter()) {

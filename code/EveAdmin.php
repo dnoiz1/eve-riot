@@ -8,9 +8,9 @@ class EveApiAdmin extends ModelAdmin {
 
 class EveTimerAdmin extends ModelAdmin
 {
-    static $managed_models = array('EvePosTimer');
+    static $managed_models = array('EveTimer');
     static $url_segment = 'timers';
-    static $menu_title = 'POS Timers';
+    static $menu_title = 'Timers';
 }
 
 class EveAllianceAdmin extends ModelAdmin
@@ -24,7 +24,7 @@ class EveMemberCacheAdmin extends ModelAdmin
 {
     static $managed_models = array('EveMemberCharacterCache');
     static $url_segment = 'membercache';
-    static $menu_title = 'Member Character Cache';
+    static $menu_title = 'Member Cache';
 }
 
 class EveBlacklistAdmin extends ModelAdmin

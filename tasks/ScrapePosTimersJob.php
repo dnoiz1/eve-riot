@@ -85,10 +85,10 @@ class ScrapePosTimersJob extends AbstractQueuedJob
             }
 
 //            $posTimer = EvePosTimer::get_one('EvePosTimer', sprintf("TimerEnds > NOW() AND TargetSolarSystem = %s AND Planet = %d AND Moon %d AND Timer = %s", $system->solarSystemID, (int)$p, (int)$m, $timer));
-            $posTimer = EvePosTimer::get_one('EvePosTimer', sprintf("TimerEnds = FROM_UNIXTIME(%d) AND TargetSolarSystem = %d", $dt, $system->solarSystemID));
+            $posTimer = EveTimer::get_one('EveTimer', sprintf("TimerEnds = FROM_UNIXTIME(%d) AND TargetSolarSystem = %d", $dt, $system->solarSystemID));
 
             if(!$posTimer) {
-                $pt = new EvePosTimer();
+                $pt = new EveTimer();
                 $pt->TimerEnds = $dt;
                 $pt->TargetSolarSystem = $system->solarSystemID;
                 $pt->Planet = $p;

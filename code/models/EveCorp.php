@@ -10,7 +10,8 @@ class EveCorp extends DataObject
         'CorpName'  => 'Varchar(255)',
         'CorpID'    => 'Int',
         'Ticker'    => 'Varchar(5)',
-        'CeoID'     => 'Int'
+        'CeoID'     => 'Int',
+        'CeoName'   => 'Varchar(255)'
     );
 
     private static $has_one = array(
@@ -20,8 +21,20 @@ class EveCorp extends DataObject
 
     static $summary_fields = array(
         'CorpName',
-        'Ticker'
+        'Ticker',
+        'CeoName',
+        'EveAlliance'
     );
+
+    static $field_labels = array(
+        'CeoName'     => 'Ceo',
+        'EveAlliance' => 'Alliance'
+    );
+
+    function getTitle()
+    {
+        return $this->CorpName;
+    }
 
     function getCMSFields()
     {
@@ -81,6 +94,7 @@ class EveCorp extends DataObject
             $this->CorpID   = $corp['corporationID'];
             $this->Ticker   = $corp['ticker'];
             $this->CeoID    = $corp['ceoID'];
+            $this->CeoName  = $corp['ceoName'];
             if($a = EveAlliance::get_one('EveAlliance', sprintf("AllianceID = '%d'", (int)$corp['allianceID']))) {
                 $this->EveAllianceID = $a->ID;
             }
@@ -98,6 +112,14 @@ class EveCorp extends DataObject
 
         if($this->GroupID != $group->ID) {
             $this->GroupID = $group->ID;
+        }
+    }
+
+    function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+        if($group = $this->Group()) {
+            if($group->ID) $group->delete();
         }
     }
 }
