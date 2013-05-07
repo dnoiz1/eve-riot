@@ -23,16 +23,16 @@ class EveMember extends DataExtension
         );
     }
 
-    function NickNameToJabberUser($suffix = false)
+    function FirstNameToJabberUser($suffix = false)
     {
-        $nn = strtolower($this->owner->Nickname);
+        $nn = strtolower($this->owner->FirstName);
         $nn = trim($nn);
         $nn = str_replace(' ', '_', $nn);
         $nn = preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
         if($suffix) $nn .= $suffix;
 
         if(Member::get_one('Member', sprintf("JabberUser = '%s'", Convert::raw2sql($nn)))) {
-            return $this->NickNameToJabberUser($suffix++);
+            return $this->FirstNameToJabberUser($suffix++);
         }
         return $nn;
     }
@@ -68,7 +68,7 @@ class EveMember extends DataExtension
         $apis = $this->ApiKeys();
 
         $groups = array();
-        $ranks = array(99 => 'Visitor');
+        //$ranks = array(99 => 'Visitor');
 
         if($apis) foreach($apis as $a) {
             $a = $a->ApiSecurityGroups();
@@ -76,18 +76,25 @@ class EveMember extends DataExtension
             if($a['Groups']) foreach($a['Groups'] as $v) {
                 if(!in_array($v, $groups)) $groups[] = $v;
             }
+            /*
             if($a['Rank']) foreach($a['Rank'] as $k => $v) {
                 $ranks[$k] = $v;
             }
+            */
         }
+
+        user_error(print_r($groups, true), E_USER_NOTICE);
 
         $nonApiGroups = Group::get('Group', sprintf("ApiManaged = 0"));
 
         $membergroups = $this->owner->Groups();
         if($membergroups) foreach($membergroups as $g) {
-            if(!in_array($g->Code, $groups)) {
+            if(!in_array($g->ID, $groups)) {
                 // only work with API groups
+                user_error(print_r($g, true), E_USER_NOTICE);
                 if($nonApiGroups->filter('ID', $g->ID)->Count() !== 0) continue;
+
+
                 // remove from groups
                 $this->owner->Groups()->remove($g);
                 $this->owner->Groups()->write();
@@ -102,8 +109,8 @@ class EveMember extends DataExtension
             }
         }
 
-        ksort($ranks);
-        $this->owner->setField('ForumRank', array_shift($ranks));
+        //ksort($ranks);
+        //$this->owner->setField('ForumRank', array_shift($ranks));
         $this->owner->write();
     }
 
@@ -166,34 +173,35 @@ class EveMember extends DataExtension
 
     function onBeforeWrite()
     {
-        if($this->owner->isChanged('PublicFieldsRaw')) {
+        if($this->owner->isChanged('FirstName')) {
             $first = false;
-            $nickname_as_toon = false;
+            $FirstName_as_toon = false;
             $chars = $this->Characters();
             if($chars) foreach($chars as $c) {
                 if(!$first) $first = $c['name'];
-                if($c['name'] == $this->owner->Nickname) {
+                if($c['name'] == $this->owner->FirstName) {
                     $this->owner->setField('CharacterID', (int)$c['characterID']);
-                    $nickname_as_toon = true;
+                    $FirstName_as_toon = true;
                     break;
                 }
             }
-            if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
+            //if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
             // still doesnt force toon names, but also doesnt fuckup when api does
-            if(!$nickname_as_toon) $this->owner->Nickname = $this->owner->FirstName;
+            //if(!$FirstName_as_toon) $this->owner->FirstName = $this->owner->FirstName;
+            if(!$FirstName_as_toon) $this->owner->FirstName = $first;
 
-            $this->owner->JabberUser = $this->NickNameToJabberUser();
+            $this->owner->JabberUser = $this->FirstNameToJabberUser();
         }
 
         if($this->owner->isChanged('NumVisit')) {
             $gen = new RandomGenerator();
             $this->owner->JabberToken = $gen->generateHash('sha1');
         }
-
+        /*
         if($this->owner->isChanged('CharacterID') && $main = $this->MainCharacter()) {
             $this->owner->ForumRank = $main->Rank();
         }
-
+        */
         return parent::onBeforeWrite();
     }
 }

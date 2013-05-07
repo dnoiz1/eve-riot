@@ -15,8 +15,8 @@ class EveinvTypesAutoSuggestField extends TextField
 
     function Field()
     {
-        Requirements::javascript('mysite/thirdparty/autosuggest/js/bsn.AutoSuggest_2.1.3.js');
-        Requirements::css('mysite/thirdparty/autosuggest/css/autosuggest_inquisitor.css');
+        Requirements::javascript('eacc/thirdparty/autosuggest/js/bsn.AutoSuggest_2.1.3.js');
+        Requirements::css('eacc/thirdparty/autosuggest/css/autosuggest_inquisitor.css');
 
         $attributes = array(
             'class' => sprintf("%s%s", $this->class, ($this->extraClass()) ? ' '. $this->extraClass() : '')

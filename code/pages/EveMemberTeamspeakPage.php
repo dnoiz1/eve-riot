@@ -139,7 +139,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
             $client = false;
             foreach($clients as $c) {
-                if(strtolower($c['client_nickname']) == strtolower($m->Nickname)) {
+                if(strtolower($c['client_nickname']) == strtolower($m->FirstName)) {
                     // this is the droid we are looking for
                     $client = $c;
                 }

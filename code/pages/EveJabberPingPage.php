@@ -155,7 +155,7 @@ class EveJabberPingPage_controller extends Page_controller
         $message = str_replace("\r", '', "\n" . $message);
 
         if($target == 0) {
-            $message = sprintf("%s\n\n>> Sent to All Online Users by %s [%s] at %s EVE time <<", $message, $m->Nickname, $m->Ticker(), date("d/m/Y H:i:s"));
+            $message = sprintf("%s\n\n>> Sent to All Online Users by %s [%s] at %s EVE time <<", $message, $m->FirstName, $m->Ticker(), date("d/m/Y H:i:s"));
 
             $params = array(
                 'from' => 'trollcast@localhost',
@@ -188,7 +188,7 @@ class EveJabberPingPage_controller extends Page_controller
 
                 $online_group_members = array_intersect($online_users, $group_members);
 
-                $message = sprintf("%s\n\n>> Sent to %s by %s [%s] at %s EVE time <<", $message, $group->Title, $m->Nickname, $m->Ticker(), date("d/m/Y H:i:s"));
+                $message = sprintf("%s\n\n>> Sent to %s by %s [%s] at %s EVE time <<", $message, $group->Title, $m->FirstName, $m->Ticker(), date("d/m/Y H:i:s"));
                 foreach($online_group_members as $ogm) {
 
                     $params = array(

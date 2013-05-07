@@ -90,8 +90,9 @@ div.autosuggest ul li a:hover
 }
 div.autosuggest ul li.as_highlight a:hover
 {
-	background-color: #B80000;
+	background-color: #338dc1;
     border-radius: 6px;
+    text-decoration: none;
 }
 
 div.autosuggest ul li a span
@@ -115,7 +116,7 @@ div.autosuggest ul li.as_highlight a span small
 div.autosuggest ul li.as_highlight a
 {
 	color: #000;
-	background-color: #B80000;
+	background-color: #338dc1;
     border-radius: 6px;
 	background-position: bottom right;
 	background-repeat: no-repeat;
@@ -153,7 +154,7 @@ div.autosuggest ul li.as_highlight em
 div.autosuggest ul em
 {
 	font-style: normal;
-	color: #B80000;
+	color: #338dc1;
 }
 
 div.autosuggest ul li:nth-child(odd)    
@@ -167,6 +168,6 @@ div.autosuggest ul li:nth-child(even)
 }
 
 div.autosuggest ul li.as_highlight a:hover
-{   background-color: #B8000000 !important;
+{   background-color: #338dc10 !important;
     color: #000 !important;
 }

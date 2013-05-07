@@ -72,7 +72,7 @@ class EveCharacter extends ViewableData
 
     function Corp()
     {
-        if($this->cache) return $cache->EveCorp();
+        if($this->cache) return $this->cache->EveCorp();
         return EveCorp::get_one('EveCorp', sprintf("CorpID = '%d'", $this->CorporationID()));
     }
 

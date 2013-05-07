@@ -5,7 +5,7 @@ function shPath()
       ;
        
   for(var i = 0; i < args.length; i++)
-      result.push(args[i].replace('@', '/mysite/thirdparty/syntaxhighlighter/scripts/'));
+      result.push(args[i].replace('@', '/eacc/thirdparty/syntaxhighlighter/scripts/'));
        
   return result
 };

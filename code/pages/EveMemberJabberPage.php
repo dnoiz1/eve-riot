@@ -12,7 +12,7 @@ class EveMemberJabberPage_controller extends Page_controller
         $m = Member::currentUser();
         if(!$m) return new Form();
 
-        $f = new FieldSet(
+        $f = new FieldList(
 /*
             new TextField('JabberUser', 'Jabber Login', $m->getField('JabberUser')),
             new PasswordField('JabberPasswd', 'Jabber Password', $m->getField('JabberPasswd'))
@@ -20,7 +20,7 @@ class EveMemberJabberPage_controller extends Page_controller
             new CheckBoxField('JabberAutoConnect', 'Auto Connect to Jabber', $m->getField('JabberAutoConnect'))
         );
 
-        $a = new FieldSet(
+        $a = new FieldList(
             new FormAction('JabberSave', 'Submit')
 //            new FormAction('JabberDelete', 'Delete')
         );

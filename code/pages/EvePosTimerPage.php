@@ -16,8 +16,8 @@ class EvePosTimerPage extends Page {
             $regionMap[$r->regionID] = $r->regionName;
         }
 
-        $f->findOrMakeTab('Root.Content.TimerOptions', 'Timer Options');
-        $f->addFieldToTab('Root.Content.TimerOptions',
+        $f->findOrMakeTab('Root.TimerOptions', 'Timer Options');
+        $f->addFieldToTab('Root.TimerOptions',
             new MultiValueDropDownField('Regions', 'Select Regions you want to display (none to show all)', $regionMap)
         );
 
@@ -35,7 +35,7 @@ class EvePosTimerPage extends Page {
             'Other'         => 'Other',
             'Roam'          => 'Roam'
         );
-        $f->addFieldToTab('Root.Content.TimerOptions',
+        $f->addFieldToTab('Root.TimerOptions',
             new MultiValueDropDownField('HiddenTypes', 'Select the Timer Types to Hide', $types)
         );
         return $f;

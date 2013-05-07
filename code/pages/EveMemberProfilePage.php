@@ -58,7 +58,7 @@ class EveProfilePage_Controller extends MemberProfilePage_Controller {
             }
         }
         if(count($chars) > 0) {
-            $form->Fields()->replaceField('Nickname', new DropDownField('Nickname', 'Pilot', $chars, $member->Nickname()));
+            $form->Fields()->replaceField('FirstName', new DropDownField('FirstName', 'Pilot', $chars, $member->FirstName));
         }
 
         return array (

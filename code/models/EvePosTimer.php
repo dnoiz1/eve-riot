@@ -18,7 +18,7 @@ class EvePosTimer extends DataObject
     );
 
     static $summary_fields = array(
-//        'TimerEnds',
+        'TimerEnds',
         'Type',
         'TargetSystemName',
         'Moon',
@@ -37,24 +37,34 @@ class EvePosTimer extends DataObject
     );
 
     static $default_sort = "TimerEnds ASC";
-/*
+
     function getCMSFields()
     {
-        $f = new FieldList();
+        $f = parent::getCMSFields();
+/*
         $date = new DateTimeField('TimerEnds', 'Timer Ends (EVE Time)');
         $date->getDateField()->setConfig('showcalendar', true);
         $date->getDateField()->setConfig('dateformat', 'dd/MM/YYYY');
         $date->getTimeField()->setConfig('showdropdown', true);
+*/
+
+        $date = DateField::create('TimerEnds[date]', 'Timer Ends (EVE Time)', $this->TimerEnds);
+        $date->setConfig('showcalendar', true);
+        $date->setConfig('dateformat', 'dd/MM/YYYY');
         $f->ReplaceField('TimerEnds', $date);
+
+        $time = TimeDropdownField::create('TimerEnds[time]', '&nbsp;', $this->TimerEnds);
+        $f->insertAfter($time, 'TimerEnds[date]');
 
         $targetSolarSystem = new EveSolarSystemAutoSuggestField('TargetSolarSystem', 'Target Solar System');
         $formUpSolarSystem = new EveSolarSystemAutoSuggestField('FormUpSolarSystem', 'Form Up Solar System');
 
         $f->replaceField('TargetSolarSystem', $targetSolarSystem);
         $f->replaceField('FormUpSolarSystem', $formUpSolarSystem);
+
         return $f;
     }
-
+/*
     function scaffoldSearchFields()
     {
         $f = parent::scaffoldSearchFields();
@@ -68,11 +78,11 @@ class EvePosTimer extends DataObject
         $f->replaceField('TargetSolarSystem', $targetSolarSystem);
         return $f;
     }
-
+*/
     function TargetRegion()
     {
         if($r = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->TargetSolarSystem)))) {
-            return $r->Region();
+            return $r->Region;
         }
     }
 
@@ -92,8 +102,8 @@ class EvePosTimer extends DataObject
 
     /* no idea why SS_DateTime doesnt return a
      * SS_DateTime Object all the time?
-     * /
-*/
+     */
+
     function TimerEndsTimeStamp()
     {
         $fuckoff = strtotime($this->TimerEnds);

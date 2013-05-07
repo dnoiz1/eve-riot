@@ -5,7 +5,7 @@
 
 class EveStaticData extends Page_Controller
 {
-    static $URLSegment = 'eveStaticData';
+    //static $URLSegment = 'eveStaticData';
 
     static function packagedSizes($hullClass)
     {
@@ -89,7 +89,7 @@ class EveStaticData extends Page_Controller
         }
         return Convert::array2json($json);
     }
-
+/*
     public function invTypes($request)
     {
         $name = $request->param('ID');
@@ -110,4 +110,5 @@ class EveStaticData extends Page_Controller
 
         return Convert::array2json($json);
     }
+*/
 }

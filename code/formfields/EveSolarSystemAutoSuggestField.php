@@ -6,15 +6,15 @@
 
 class EveSolarSystemAutoSuggestField extends TextField
 {
-    function __construct($name, $title = null, $value = null)
+    function __construct($name, $title = null, $value = '', $maxLength = null, $form = null)
     {
-        return parent::__construct($name, $title, $value = null);
+        return parent::__construct($name, $title, $value = '', $maxLength = null, $form = null);
     }
 
-    function Field()
+    function Field($properties = array())
     {
-        Requirements::javascript('mysite/thirdparty/autosuggest/js/bsn.AutoSuggest_2.1.3.js');
-        Requirements::css('mysite/thirdparty/autosuggest/css/autosuggest_inquisitor.css');
+        Requirements::javascript('eacc/thirdparty/autosuggest/js/bsn.AutoSuggest_2.1.3.js');
+        Requirements::css('eacc/thirdparty/autosuggest/css/autosuggest_inquisitor.css');
 
         $attributes = array(
             'class' => sprintf("%s%s", $this->class, ($this->extraClass()) ? ' '. $this->extraClass() : '')
@@ -32,7 +32,10 @@ class EveSolarSystemAutoSuggestField extends TextField
         $text_attributes = $attributes;
         $text_attributes['id'] = sprintf("%s_text", $this->id());
         $text_attributes['name'] = sprintf("%s_text", $this->name);
-        $text_attributes['value'] = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->Value())))->solarSystemName;
+
+        $solarsystem = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->Value())));
+        $text_attributes['value'] = ($solarsystem) ? $solarsystem->solarSystemName : '';
+
         $text_attributes['type'] = 'text';
         $text_attributes['class'] .= ' text';
 
@@ -41,14 +44,17 @@ class EveSolarSystemAutoSuggestField extends TextField
         return $hidden_tag . $text_tag;
     }
 
-    function FieldHolder()
+    function FieldHolder($properties = array())
     {
         $id = $this->id();
 
-        $h = parent::FieldHolder();
+        $h = parent::FieldHolder($properties);
         $h .= <<<JS
             <script type="text/javascript">
-            jQuery(function(){
+            if(typeof EveSolarSystemAutoSuggestLoad !== 'object') {
+                var EveSolarSystemAutoSuggestLoad = [];
+            }
+            EveSolarSystemAutoSuggestLoad.push(function(){
                 var options_{$id} = {
                     script: function() { return '/eveStaticData/solarSystems/' + jQuery('#{$id}_text').val(); },
                     json: true,
@@ -60,6 +66,8 @@ class EveSolarSystemAutoSuggestField extends TextField
 
                 var as_{$id} = new bsn.AutoSuggest('{$id}_text', options_{$id});
             });
+            //.. this loads before jquery, need a better fix -noiz
+            window.onload = function(){ jQuery(EveSolarSystemAutoSuggestLoad).each(function(i,f){ f(); }); }
             </script>
 JS;
         return $h;

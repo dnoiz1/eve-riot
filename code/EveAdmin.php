@@ -17,7 +17,14 @@ class EveAllianceAdmin extends ModelAdmin
 {
     static $managed_models = array('EveAlliance', 'EveCorp');
     static $url_segment = 'alliance';
-    static $menu_title = 'Alliance';
+    static $menu_title = 'Member Alliances';
+}
+
+class EveMemberCacheAdmin extends ModelAdmin
+{
+    static $managed_models = array('EveMemberCharacterCache');
+    static $url_segment = 'membercache';
+    static $menu_title = 'Member Character Cache';
 }
 
 class EveBlacklistAdmin extends ModelAdmin

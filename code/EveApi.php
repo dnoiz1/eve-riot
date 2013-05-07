@@ -38,7 +38,7 @@ class EveApi extends DataObject {
 
     function Pilot()
     {
-        return ($m = Member::get_by_id('Member', (int)$this->MemberID)) ? $m->NickName() : 'Unassigned';
+        return ($m = Member::get_by_id('Member', (int)$this->MemberID)) ? $m->FirstName : 'Unassigned';
     }
 
     function APIErrors()
@@ -154,16 +154,16 @@ class EveApi extends DataObject {
     function ApiSecurityGroups()
     {
         $groups = array();
-        $rank = array(99 => 'Visitor');
+        //$rank = array(99 => 'Visitor');
 
-        if($this->isValid() !== true) return array('Groups' => $groups, 'Rank' => $rank);
+        if($this->isValid() !== true) return array('Groups' => $groups); //, 'Rank' => $rank);
 
         foreach($this->Characters() as $c) {
             // first check corp
             //if($c['corporationID'] == 98045653) {
             if($corp = EveCorp::get_one('EveCorp', sprintf("CorpID = %d", $c['corporationID']))) {
                 $groups[] = $corp->Group()->ID;
-                $rank[90] = 'Member';
+                //$rank[90] = 'Member';
 
                 $this->ale->setCharacterID($c['characterID']);
                 try {
@@ -182,7 +182,7 @@ class EveApi extends DataObject {
                                 }
                             }
                             //$rank[10] = 'Director';
-                            $rank[10] = sprintf('%s Director', $corp->Ticker);
+                            //$rank[10] = sprintf('%s Director', $corp->Ticker);
                         }
                     }
                     /*
@@ -198,7 +198,8 @@ class EveApi extends DataObject {
                     }
                     */
                     if($c['characterID'] == $corp->CeoID && $this->Member()->CharacterID == $corp->CeoID) {
-                        $rank[0] = sprintf('%s CEO', $corp->Ticker);
+                        //$rank[0] = sprintf('%s CEO', $corp->Ticker);
+                        $AllianceLeaderShip = 'lol fix later';
                     }
                 } catch(Exception $e) {
                     continue;
@@ -208,12 +209,15 @@ class EveApi extends DataObject {
             }
         }
         $groups = array_unique($groups);
-        ksort($rank);
-        return array('Groups' => $groups, 'Rank' => $rank);
+        //ksort($rank);
+        return array('Groups' => $groups);//, 'Rank' => $rank);
     }
 
     function onBeforeWrite()
     {
+        $this->KeyID = trim($this->KeyID);
+        $this->vCode = trim($this->vCode);
+
         parent::onBeforeWrite();
         if(!$this->ID) {
             if(!$this->isValid()) {
@@ -240,9 +244,9 @@ class EveApi extends DataObject {
                    $cache->write();
                }
 
-               if(strtolower($m->Nickname) == strtolower($c['name']) || $m->CharacterID == $c['characterID'] || $m->CharacterID == 0) {
+               if(strtolower($m->FirstName) == strtolower($c['name']) || $m->CharacterID == $c['characterID'] || $m->CharacterID == 0) {
                    $m->CharacterID = $c['characterID'];
-                   $m->NickName   = $c['name'];
+                   $m->FirstName   = $c['name'];
                    $m->write();
                }
 
