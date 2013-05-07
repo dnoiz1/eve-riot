@@ -1,6 +1,6 @@
 <?php
 class EveMemberTeamspeakPage extends Page {
-    static $db = array(
+    private static $db = array(
         'Hostname'  => 'Varchar(255)',
         'Port'      => 'Int',
         'Username'  => 'Varchar(255)',

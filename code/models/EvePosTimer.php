@@ -2,7 +2,7 @@
 
 class EvePosTimer extends DataObject
 {
-    static $db = array(
+    private static $db = array(
         'TimerEnds'     => 'SS_DateTime',
         'TargetSolarSystem'   => 'Int',
         'Planet'        => 'Int',

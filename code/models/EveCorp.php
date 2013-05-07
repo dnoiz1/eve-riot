@@ -6,14 +6,14 @@ class EveCorp extends DataObject
 {
     public $ale;
 
-    static $db = array(
+    private static $db = array(
         'CorpName'  => 'Varchar(255)',
         'CorpID'    => 'Int',
         'Ticker'    => 'Varchar(5)',
         'CeoID'     => 'Int'
     );
 
-    static $has_one = array(
+    private static $has_one = array(
         'EveAlliance'   => 'EveAlliance',
         'Group'         => 'Group'
     );

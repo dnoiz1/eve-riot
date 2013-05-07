@@ -1,7 +1,7 @@
 <?php
 class EveJabberPingPage extends Page
 {
-    static $db = array(
+    private static $db = array(
         'JabberHost' => 'Varchar(255)',
         'JabberRPCHost' => 'Varchar(255)',
         'JabberRPCPort' => 'Int'

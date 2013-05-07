@@ -3,25 +3,20 @@
 class EveMember extends DataExtension
 {
 
-    function extraStatics($class = null, $extension = null)
-    {
-        return array(
-            'db' => array(
+    private static $db = array(
                 'CharacterID' => 'Int',
                 'JabberUser' => 'Varchar(255)',
                 'JabberToken' => 'Varchar(255)',
                 'JabberAutoConnect' => 'Boolean',
                 'TeamSpeakIdentity' => 'Varchar(255)',
-                'HasDonated'    => 'Boolean',
-            ),
-            'has_many' => array(
+                'HasDonated'    => 'Boolean'
+            );
+    static $has_many = array(
                 'EveMemberCharacterCache' => 'EveMemberCharacterCache'
-            ),
-            'defaults' => array(
+            );
+    static $defaults = array(
                 'JabberAutoConnect' => 1
-            )
-        );
-    }
+            );
 
     function FirstNameToJabberUser($suffix = false)
     {

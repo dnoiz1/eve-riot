@@ -10,13 +10,13 @@ class EveApi extends DataObject {
         return parent::__construct($record, $isSingleton);
     }
 
-    static $db = array(
+    private static $db = array(
         'KeyID' => 'Int',
         'vCode' => 'Varchar(255)',
         'Valid' =>  'Boolean'
     );
 
-    static $has_one = array(
+    private static $has_one = array(
         'Member' => 'Member'
     );
 

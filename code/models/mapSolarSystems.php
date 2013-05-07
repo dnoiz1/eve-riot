@@ -2,7 +2,7 @@
 
 class mapSolarSystems extends DataObject
 {
-    static $db = array(
+    private static $db = array(
         'regionID'          => 'Int',
         'constellationID'   => 'Int',
         'solarSystemID'     => 'Int',

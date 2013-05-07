@@ -8,7 +8,7 @@ class EveCharacterPage_controller extends Page_controller
 {
     public $char = false;
 
-    public function handleAction($request)
+    public function handleAction($request, $action)
     {
         Requirements::CustomScript(<<<JS
             jQuery('.controls #HideUntrained').change(function(){

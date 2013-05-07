@@ -2,7 +2,7 @@
 
 class mapRegions extends DataObject
 {
-    static $db = array(
+    private static $db = array(
         'regionID'      => 'Int',
         'regionName'    => 'Varchar(100)',
         'x'             => 'Double',

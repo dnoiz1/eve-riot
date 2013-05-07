@@ -5,7 +5,7 @@ class EveApiPage extends Page
 
 class EveApiPage_controller extends Page_controller
 {
-    static $allowed_actions = array(
+    private static $allowed_actions = array(
         'APIForm',
         'delete'
     );

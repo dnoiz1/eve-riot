@@ -1,23 +1,23 @@
 <?php
 class oldPage extends SiteTree {
-	public static $has_one = array(
+	private static $has_one = array(
 	);
     function ShowInMainMenu()
     {
         return true;
     }
 
-    public static $db = array(
+    private static $db = array(
         'OpenInNewWindow'   => 'Boolean',
         'ShowOnHomePage'    => 'Boolean'
     );
 
-    public static $defaults = array(
+    private static $defaults = array(
         'OpenInNewWindow' => 0,
         'ShowOnHomePage'  => 1
     );
 
-    public function getCMSFields()
+    function getCMSFields()
     {
         $f = parent::getCMSFields();
         $fields = $f->findOrMakeTab('Root.Behaviour');
@@ -43,7 +43,7 @@ class oldPage_Controller extends ContentController {
 	 *
 	 * @var array
 	 */
-	public static $allowed_actions = array (
+	private static $allowed_actions = array (
 	);
 
 	public function init() {

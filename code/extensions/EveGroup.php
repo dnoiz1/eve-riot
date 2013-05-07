@@ -1,18 +1,14 @@
 <?php
 class EveGroup extends DataExtension
 {
-    public function extraStatics($class = null,  $extension = null)
-    {
-        return array(
-            'db' => array(
-                'Ticker'    => 'Varchar(5)',
-                'ApiManaged'    => 'Boolean'
-            ),
-            'defaults' => array(
-                'ApiManaged'    => 1
-            )
-        );
-    }
+    private static $db = array(
+        'Ticker'    => 'Varchar(5)',
+        'ApiManaged'    => 'Boolean'
+    );
+
+    private static $defaults = array(
+        'ApiManaged'    => 1
+    );
 
     public function UpdateCMSFields(FieldList $f)
     {

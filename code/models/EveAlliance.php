@@ -6,7 +6,7 @@ class EveAlliance extends DataObject
 {
     public $ale;
 
-    static $db = array(
+    private static $db = array(
         'AllianceName'      => 'Varchar(255)',
         'AllianceID'        => 'Int',
         'Ticker'            => 'Varchar(5)',
@@ -14,11 +14,11 @@ class EveAlliance extends DataObject
         'MemberCount'       => 'Int'
     );
 
-    static $has_many = array(
+    private static $has_many = array(
         'EveCorp'   => 'EveCorp',
     );
 
-    static $has_one = array(
+    private static $has_one = array(
         'Group'     => 'Group'
     );
 

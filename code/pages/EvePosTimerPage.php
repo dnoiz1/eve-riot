@@ -1,7 +1,7 @@
 <?php
 
 class EvePosTimerPage extends Page {
-    static $db = array(
+    private static $db = array(
         'Regions' => 'MultiValueField',
         'HiddenTypes' => 'MultiValueField'
     );

@@ -2,7 +2,7 @@
 
 class EveMemberCharacterCache extends DataObject
 {
-    static $db = array(
+    private static $db = array(
         'CharacterID'       => 'Int',
         'CharacterName'     => 'Varchar(255)',
         'CorporationID'     => 'Int',
@@ -11,7 +11,7 @@ class EveMemberCharacterCache extends DataObject
 //        'AllianceName'   => 'Varchar(255)'
     );
 
-    static $has_one = array(
+    private static $has_one = array(
         'Member'    => 'Member',
         'EveApi'    => 'EveApi'
     );

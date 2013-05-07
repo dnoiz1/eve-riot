@@ -1,7 +1,7 @@
 <?php
 
 class EveTimeCodePage extends Page {
-    static $db = array(
+    private static $db = array(
         'AffiliateID'   => 'Int'
     );
 

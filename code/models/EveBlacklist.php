@@ -2,7 +2,7 @@
 
 class EveBlacklist extends DataObject
 {
-    static $db = array(
+    private static $db = array(
         'Type'      => "Enum('Character, KeyID, EmailAddress', 'Character')",
         'Value'     => 'Varchar(255)',
         'Source'    => 'Varchar(255)',
