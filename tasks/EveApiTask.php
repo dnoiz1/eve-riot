@@ -84,7 +84,7 @@ try {
 
                         if(strtolower($m->Nickname) == strtolower($c['name']) || $m->CharacterID == $c['characterID'] || $m->CharacterID == 0) {
                             $m->CharacterID = $c['characterID'];
-                            $m->NickName   = $c['name'];
+                            $m->FirstName   = $c['name'];
                             $m->write();
                         }
                     }
@@ -103,7 +103,7 @@ try {
 
     		if($this->repeat) {
     	    	$job = new EveApiJob();
-    			singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			//singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;

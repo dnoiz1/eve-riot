@@ -2,7 +2,7 @@
 class EveGroup extends DataExtension
 {
     private static $db = array(
-        'Ticker'    => 'Varchar(5)',
+        //'Ticker'    => 'Varchar(5)',
         'ApiManaged'    => 'Boolean'
     );
 

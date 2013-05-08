@@ -100,6 +100,25 @@ class EveApi extends DataObject {
                     $errors[] = array('Reason' => 'Missing '.$k);
                 }
             }
+
+            $info = $this->ale->Account->Characters();
+            $chars = array();
+            foreach($info->result->characters as $c) {
+                $c = $c->attributes();
+                $chars[$c['characterID']] = $c['name'];
+            }
+            if(EveMemberCharacterCache::get()->filter('CharacterID', array_keys($chars))->exclude('EveApiID', $this->ID)->Count() > 0) {
+                $errors[] = array('Reason' => 'Characters on this API already belong to an Account.');
+            }
+
+            if(count($errors) == 0) {
+                // nuke imposters.
+                foreach(Member::get()->filter('FirstName', array_values($chars))->exclude('ID', $this->MemberID) as $imposter) {
+                    $imposter->FirstNameCitizen();
+                    $imposter->write();
+                }
+            }
+
         } catch(Exception $e) {
             $errors[] = array('Reason' => $e->getMessage());
         }
@@ -153,64 +172,18 @@ class EveApi extends DataObject {
 
     function ApiSecurityGroups()
     {
-        $groups = array();
-        //$rank = array(99 => 'Visitor');
+        if($this->isValid() !== true) return new ArrayList();
 
-        if($this->isValid() !== true) return array('Groups' => $groups); //, 'Rank' => $rank);
-
+        $corps = array();
         foreach($this->Characters() as $c) {
-            // first check corp
-            //if($c['corporationID'] == 98045653) {
-            if($corp = EveCorp::get_one('EveCorp', sprintf("CorpID = %d", $c['corporationID']))) {
-                $groups[] = $corp->Group()->ID;
-                //$rank[90] = 'Member';
-
-                $this->ale->setCharacterID($c['characterID']);
-                try {
-                    $ci = $this->ale->char->CharacterSheet();
-                    $roles = $ci->xpath("/eveapi/result/rowset[@name='corporationRoles']/row");
-                    foreach($roles as $r) {
-                        $r = $r->attributes();
-                        // check for role based access (director)
-                        if($r['roleID'] == 1) {
-                            if($dg = Group::get_one('Group', sprintf("Code = 'directors' AND ParentID = %d", $corp->Group()->ID))) {
-                                $groups[] = $dg->ID;
-                            }
-                            if($all = $corp->EveAlliance()) {
-                                if($adg = Group::get_one('Group', sprintf("Code = 'directors' AND ParentID = %d", $all->Group()->ID))) {
-                                    $groups[] = $adg->ID;
-                                }
-                            }
-                            //$rank[10] = 'Director';
-                            //$rank[10] = sprintf('%s Director', $corp->Ticker);
-                        }
-                    }
-                    /*
-                    $titles = $ci->xpath("/eveapi/result/rowset[@name='corporationTitles']/row");
-                    foreach($titles as $t) {
-                        $t = $t->attributes();
-                        if(($t['titleName'] == 'Officer' || $t['titleName'] == 'Enforcer')
-                            && in_array('rioters', $groups)
-                        ) {
-                            $groups[] = 'officers';
-                            $rank[20] = 'Officer';
-                        }
-                    }
-                    */
-                    if($c['characterID'] == $corp->CeoID && $this->Member()->CharacterID == $corp->CeoID) {
-                        //$rank[0] = sprintf('%s CEO', $corp->Ticker);
-                        $AllianceLeaderShip = 'lol fix later';
-                    }
-                } catch(Exception $e) {
-                    continue;
-                }
-            } else {
-                continue;
-            }
+            $corps[] = $c['corporationID'];
         }
-        $groups = array_unique($groups);
-        //ksort($rank);
-        return array('Groups' => $groups);//, 'Rank' => $rank);
+
+        $EveCorps = EveCorp::get()->filter('CorpID', $corps);
+        $groups = Group::get()->filter(array(
+            'ID' => array_keys($EveCorps->Map('GroupID')->toArray())
+        ));
+        return $groups;
     }
 
     function onBeforeWrite()
@@ -228,11 +201,12 @@ class EveApi extends DataObject {
 
     function onAfterWrite()
     {
+        parent::onAfterWrite();
         $m = Member::get_by_id('Member', (int)$this->MemberID);
         if($m) {
             foreach($this->Characters() as $c) {
                //incase they have multiple apis for the same account.. people is tards
-               if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("MemberID = %d AND CharacterID = %d", $m->ID, $c['characterID']))) {
+               if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = %d", $c['characterID']))) {
                    $cache = new EveMemberCharacterCache();
                    $cache->CharacterName = $c['name'];
                    $cache->CharacterID   = $c['characterID'];
@@ -253,13 +227,20 @@ class EveApi extends DataObject {
                $m->updateGroupsFromAPI();
             }
         }
-        return parent::onAfterWrite();
+    }
+
+    function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+        foreach(EveMemberCharacterCache::get()->Filter(array('EveApiID' => $this->ID)) as $cache) {
+            $cache->delete();
+        }
     }
 
     function onAfterDelete()
     {
+        parent::onAfterDelete();
         $m = Member::get_by_id('Member', (int)$this->MemberID);
         if($m) $m->updateGroupsFromAPI();
-        return parent::onAfterDelete();
     }
 }

@@ -23,17 +23,26 @@ class EveCorp extends DataObject
         'CorpName',
         'Ticker',
         'CeoName',
-        'EveAlliance'
+        'EveAllianceName'
     );
 
     static $field_labels = array(
         'CeoName'     => 'Ceo',
-        'EveAlliance' => 'Alliance'
+        'EveAllianceName' => 'Alliance'
+    );
+
+    static $casting = array(
+        'EveAllianceName'   => 'Varchar(255)'
     );
 
     function getTitle()
     {
         return $this->CorpName;
+    }
+
+    function EveAllianceName()
+    {
+        return ($a = $this->EveAlliance()) ? $a->AllianceName : '';
     }
 
     function getCMSFields()
@@ -105,7 +114,6 @@ class EveCorp extends DataObject
                 $group->ParentID = $alliance->ID;
             }
             $group->Code   = $this->Ticker;
-            $group->Ticker = $this->Ticker;
             $group->Title  = $this->CorpName;
             $group->write();
         }

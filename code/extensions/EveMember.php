@@ -46,7 +46,7 @@ class EveMember extends DataExtension
 
     function ApiKeys()
     {
-        return EveApi::get('EveApi', sprintf('MemberID = %d', $this->owner->ID));
+        return EveApi::get()->filter('MemberID', $this->owner->ID);
     }
 
     function updateCMSFields(FieldList $f)
@@ -64,50 +64,34 @@ class EveMember extends DataExtension
     {
         $apis = $this->ApiKeys();
 
-        $groups = array();
-        //$ranks = array(99 => 'Visitor');
-
+        $groups = new ArrayList();
         if($apis) foreach($apis as $a) {
-            $a = $a->ApiSecurityGroups();
-
-            if($a['Groups']) foreach($a['Groups'] as $v) {
-                if(!in_array($v, $groups)) $groups[] = $v;
+            foreach($a->ApiSecurityGroups() as $g) {
+                $groups->push($g);
             }
-            /*
-            if($a['Rank']) foreach($a['Rank'] as $k => $v) {
-                $ranks[$k] = $v;
-            }
-            */
         }
 
-        //user_error(print_r($groups, true), E_USER_NOTICE);
+        // srsly.. not avail
+        //$groups = $groups->removeDuplicates();
+        $removeGroups = $this->owner->Groups()->exclude('ApiManaged', 0);
 
-        $nonApiGroups = Group::get('Group', sprintf("ApiManaged = 0"));
+        if($groups->Count() > 0) {
+            $removeGroups = $removeGroups->exclude(array(
+                'ID'  => array_keys($groups->Map())
+            ));
+        }
 
-        $membergroups = $this->owner->Groups();
-        if($membergroups) foreach($membergroups as $g) {
-            if(!in_array($g->ID, $groups)) {
-                // only work with API groups
-                //user_error(print_r($g, true), E_USER_NOTICE);
-                if($nonApiGroups->filter('ID', $g->ID)->Count() !== 0) continue;
-
-
-                // remove from groups
-                $this->owner->Groups()->remove($g);
-                $this->owner->Groups()->write();
-            }
+        foreach($removeGroups as $rg) {
+            $this->owner->Groups()->remove($rg);
         }
 
         foreach($groups as $g) {
             if(!$this->owner->inGroup($g)) {
-                if($group = Group::get_by_id('Group', (int)$g)) {
-                    $group->Members()->add($this->owner);
-                }
+                $g->Members()->add($this->owner);
+                $g->write();
             }
         }
 
-        //ksort($ranks);
-        //$this->owner->setField('ForumRank', array_shift($ranks));
         $this->owner->write();
     }
 
@@ -168,6 +152,11 @@ class EveMember extends DataExtension
         return false;
     }
 
+    function FirstNameCitizen()
+    {
+        $this->FirstName = sprintf("CoalitionCitizen%d%d", date('U'), rand(1000,9999));
+    }
+
     function onBeforeWrite()
     {
         if($this->owner->isChanged('FirstName')) {
@@ -186,7 +175,9 @@ class EveMember extends DataExtension
                 //if($first && !$this->owner->FirstName) $this->owner->FirstName = $first;
                 // still doesnt force toon names, but also doesnt fuckup when api does
                 //if(!$FirstName_as_toon) $this->owner->FirstName = $this->owner->FirstName;
-                if(!$FirstName_as_toon) $this->owner->FirstName = $first;
+                if(!$FirstName_as_toon) {
+                    $this->owner->FirstName = $first;
+                }
                 $this->owner->JabberUser = $this->FirstNameToJabberUser();
             }
         }
