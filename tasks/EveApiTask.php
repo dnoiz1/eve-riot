@@ -53,48 +53,48 @@ class EveApiJob extends AbstractQueuedJob
                     $o->delete();
                 }
             }
-try {
-            if($apis = $m->ApiKeys()) {
-                foreach($apis as $a) {
-                    if($errors = $a->isValid()) {
-                        if(is_array($errors)) {
-                            foreach($errors as $e) {
-                                if($e->Reason == 'Key has expired. Contact key owner for access renewal.'
-                                 || $e->Reason == 'Authentication failure.') {
-                                    $a->delete();
+            try {
+                if($apis = $m->ApiKeys()) {
+                    foreach($apis as $a) {
+                        if($errors = $a->isValid()) {
+                            if(is_array($errors)) {
+                                foreach($errors as $e) {
+                                    if($e->Reason == 'Key has expired. Contact key owner for access renewal.'
+                                     || $e->Reason == 'Authentication failure.') {
+                                        $a->delete();
+                                    }
                                 }
+                                continue;
                             }
-                            continue;
                         }
-                    }
-                    foreach($a->Characters() as $c) {
-                        //incase they have multiple apis for the same account.. people is tards
-                        if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("MemberID = %d AND CharacterID = %d", $m->ID, $c['characterID']))) {
-                            $cache = new EveMemberCharacterCache();
-                            $cache->CharacterName = $c['name'];
-                            $cache->CharacterID   = $c['characterID'];
-                            $cache->CorporationName = $c['corporationName'];
-                            $cache->CorporationID   = $c['corporationID'];
-                            $cache->MemberID      = $m->ID;
-                            $cache->EveApiID      = $a->ID;
+                        foreach($a->Characters() as $c) {
+                            //incase they have multiple apis for the same account.. people is tards
+                            if(!EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("MemberID = %d AND CharacterID = %d", $m->ID, $c['characterID']))) {
+                                $cache = new EveMemberCharacterCache();
+                                $cache->CharacterName = $c['name'];
+                                $cache->CharacterID   = $c['characterID'];
+                                $cache->CorporationName = $c['corporationName'];
+                                $cache->CorporationID   = $c['corporationID'];
+                                $cache->MemberID      = $m->ID;
+                                $cache->EveApiID      = $a->ID;
 
-                            $cache->write();
-                        }
-                        if($this->debug) printf(" - %s\n", $c['name']);
+                                $cache->write();
+                            }
+                            if($this->debug) printf(" - %s\n", $c['name']);
 
-                        if(strtolower($m->Nickname) == strtolower($c['name']) || $m->CharacterID == $c['characterID'] || $m->CharacterID == 0) {
-                            $m->CharacterID = $c['characterID'];
-                            $m->FirstName   = $c['name'];
-                            $m->write();
+                            if(strtolower($m->Nickname) == strtolower($c['name']) || $m->CharacterID == $c['characterID'] || $m->CharacterID == 0) {
+                                $m->CharacterID = $c['characterID'];
+                                $m->FirstName   = $c['name'];
+                                $m->write();
+                            }
                         }
                     }
                 }
+                // this seems kinda dumb, might move it into ^
+                $m->UpdateGroupsFromAPI();
+            } catch(Exception $e) {
+                printf("%s\n", $e->Message);
             }
-            // this seems kinda dumb, might move it into ^
-            $m->UpdateGroupsFromAPI();
-} catch(Exception $e) {
-    printf("%s\n", $e->Message);
-}
         }
 
 		$this->currentStep++;
@@ -103,7 +103,7 @@ try {
 
     		if($this->repeat) {
     	    	$job = new EveApiJob();
-    			//singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;

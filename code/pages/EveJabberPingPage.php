@@ -4,22 +4,24 @@ class EveJabberPingPage extends Page
     private static $db = array(
         'JabberHost' => 'Varchar(255)',
         'JabberRPCHost' => 'Varchar(255)',
-        'JabberRPCPort' => 'Int'
+        'JabberRPCPort' => 'Int',
+        'JabberSourceJID' => 'Varchar(255)'
     );
 
     static $defaults = array(
         'JabberRPCHost' => 'localhost',
-        'JabberRPCPort' => '4650'
+        'JabberRPCPort' => '4560'
     );
 
     function getCMSFields()
     {
         $f = parent::getCMSFields();
-        $f->findOrMakeTab('Root.Content.Jabber', 'Jabber Settings');
-        $f->addFieldsToTab('Root.Content.Jabber', new FieldSet(
+        $f->findOrMakeTab('Root.Jabber', 'Jabber Settings');
+        $f->addFieldsToTab('Root.Jabber', new FieldList(
             new TextField('JabberHost', 'Jabber Host (for JID)'),
             new TextField('JabberRPCHost', 'Jabber XML-RPC Host'),
-            new NumericField('JabberRPCPort', 'Jabber XML-RPC Port')
+            new NumericField('JabberRPCPort', 'Jabber XML-RPC Port'),
+            new TextField('JabberSourceJID', 'Jabber JID to send from (on announce acl)')
         ));
         return $f;
     }
@@ -34,10 +36,12 @@ class EveJabberPingPage_controller extends Page_controller
 
         $headers = array(
             "Content-Type: text/xml",
-            "User-Agent: Unclaimed Ping"
+            "User-Agent: Jabber Ping"
         );
 
-        curl_setopt($ch, CURLOPT_URL, sprintf("http://%s:%d/RPC2", $this->JabberRPCHost, $this->JabberRPCPort));
+        curl_setopt($ch, CURLOPT_URL, sprintf("http://%s/RPC2", $this->JabberRPCHost));
+        //curl_setopt($ch, CURLOPT_URL, "http://127.0.0.1/RPC2");
+        //curl_setopt($ch, CURLOPT_PORT, 4560);
         curl_setopt($ch, CURLOPT_PORT, $this->JabberRPCPort);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -62,6 +66,7 @@ class EveJabberPingPage_controller extends Page_controller
             $dst = Group::get('Group')->Map();
         }  else {
 */
+/*
             $dst = array();
             foreach($m->Groups() as $g) {
                 if($g->hasPerm('JABBER') && $g->ApiManaged) {
@@ -80,8 +85,8 @@ class EveJabberPingPage_controller extends Page_controller
                 }
             }
             ksort($dst);
+*/
 //        }
-
         $template = "Fleet Name:\n".
                     "FC:\n".
                     "Comms:\n".
@@ -93,12 +98,16 @@ class EveJabberPingPage_controller extends Page_controller
                     "Why:";
 
 
-        $f = new FieldSet(
-            new DropDownField('Destination', 'Group to Ping', $dst),
-            new TextAreaField('JabberMessage', 'Message', 10, 5, $template)
+        $textarea = new TextAreaField('JabberMessage', 'Message', $template);
+        $textarea->setRows(10);
+        $textarea->setColumns(400);
+
+        $f = new FieldList(
+            //new DropDownField('Destination', 'Group to Ping', $dst),
+            $textarea
         );
 
-        $a = new FieldSet(
+        $a = new FieldList(
             new FormAction('JabberPing', 'Send')
         );
 
@@ -120,9 +129,16 @@ class EveJabberPingPage_controller extends Page_controller
 
     function JabberPing($data, $form)
     {
-        $m = Member::currentUser();
+        //$data['Destination'] = (int)$data['Destination'];
 
-        $data['Destination'] = (int)$data['Destination'];
+        if(!Permission::check('EVE_JABBER_GLOBAL_BROADCAST')) {
+            Session::set('Eve.JabberPing.Sent', 'You are not allowed to send a global broadcast');
+            return $this->redirectBack();
+        }
+
+        $this->JabberSendPing($data['JabberMessage']);
+        Session::set('Eve.JabberPing.Sent', true);
+/*
         //check data
         $send_global = false;
 
@@ -142,7 +158,7 @@ class EveJabberPingPage_controller extends Page_controller
         } else {
             Session::set('Eve.JabberPing.Sent', 'You are not allowed to broadcast to that group');
         }
-
+*/
         return $this->redirectBack();
     }
 
@@ -154,16 +170,17 @@ class EveJabberPingPage_controller extends Page_controller
 
         $message = str_replace("\r", '', "\n" . $message);
 
-        if($target == 0) {
+        //if($target == 0) {
             $message = sprintf("%s\n\n>> Sent to All Online Users by %s [%s] at %s EVE time <<", $message, $m->FirstName, $m->Ticker(), date("d/m/Y H:i:s"));
 
             $params = array(
-                'from' => 'trollcast@localhost',
+                'from' => $this->JabberSourceJID,
                 'to' => sprintf("%s/announce/all-hosts/online", $this->JabberHost),
                 'body' => $message,
             );
 
             $this->JabberXMLRPC('send_message_chat', $params);
+/*
         } else {
             if($group = Group::get_by_id('Group', $target)) {
 
@@ -202,5 +219,6 @@ class EveJabberPingPage_controller extends Page_controller
 
             }
         }
+*/
     }
 }

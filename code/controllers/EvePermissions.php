@@ -29,6 +29,10 @@ class EvePermissions extends SiteTree implements PermissionProvider
                 'name'  =>  'Allow Jabber Access',
                 'category' => 'External Services'
             ),
+            'EVE_JABBER_GLOBAL_BROADCAST' => array(
+                'name'  =>  'Allow user to send broadcasts to all online users',
+                'category' => 'External Services'
+            ),
             'MUMBLE' => array(
                 'name'  =>  'Allow Mumble Access',
                 'category' => 'External Services'

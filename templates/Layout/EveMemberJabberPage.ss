@@ -4,10 +4,10 @@
 		<div class="content">
             <% if CurrentMember.AllowedJabber %>
                 <p>
-                    Your username is: <span class="important">{$CurrentMember.JabberUser}@evetroll.com</span>
+                    Your username is: <span class="important">{$CurrentMember.JabberUser}@coalition.evetroll.com</span>
                 </p>
                 $Content
-                $JabberForm
+                <%-- $JabberForm --%>
             <% else %>
                 You do not meet the current requirements to access Jabber
             <% end_if %>

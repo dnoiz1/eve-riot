@@ -89,6 +89,8 @@ class AleRequestCurl implements AleInterfaceRequest  {
 			curl_setopt ($ch, CURLOPT_CAINFO, $this->config['certificate']);
 		}
 
+        curl_setopt($ch, CURLOPT_USERAGENT, 'coalition auth checking. contact: chrytis');
+
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['certificate']);
 		if ($params) {
 			if ($this->config['flattenParams']) {

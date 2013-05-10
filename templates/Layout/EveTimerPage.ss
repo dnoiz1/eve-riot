@@ -13,22 +13,21 @@
                 </p>
             <% end_if %>
 
+            <h4>Upcoming Timers</h4>
+
             <table class="table table-striped table-bordered table-condensed">
                 <thead>
                     <tr>
-                        <th colspan="8">Upcoming Timers</th>
+                        <th colspan="2">Timer</th>
+                        <th>Solar System</th>
+                        <th>Planet - Moon</th>
+                        <th>Type</th>
+                        <th>Defended</th>
+                        <th>Timer</th>
+                        <th>Owner</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="2">Timer</td>
-                        <td>Solar System</td>
-                        <td>Planet - Moon</td>
-                        <td>Type</td>
-                        <td>Defended</td>
-                        <td>Timer</td>
-                        <td>Owner</td>
-                    </tr>
                     <% if Timers %>
                         <% loop Timers %>
                             <tr>
@@ -52,22 +51,20 @@
                 </tbody>
             </table>
 
+            <h4>Past Timers in 48H</h4>
             <table class="table table-striped table-bordered table-condensed">
                 <thead>
                     <tr>
-                        <th colspan="8">Past Timers in 48H</th>
+                        <th colspan="2">Timer</th>
+                        <th>Solar System</th>
+                        <th>Planet - Moon</th>
+                        <th>Type</th>
+                        <th>Defended</th>
+                        <th>Timer</th>
+                        <th>Owner</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="2">Timer</td>
-                        <td>Solar System</td>
-                        <td>Planet - Moon</td>
-                        <td>Type</td>
-                        <td>Defended</td>
-                        <td>Timer</td>
-                        <td>Owner</td>
-                    </tr>
                     <% if PastTimers %>
                         <% loop PastTimers %>
                             <tr>

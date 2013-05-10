@@ -13,7 +13,8 @@ class EveMember extends DataExtension
     );
 
     static $has_many = array(
-        'EveMemberCharacterCache' => 'EveMemberCharacterCache'
+        'EveMemberCharacterCache' => 'EveMemberCharacterCache',
+        'EveApi'                  => 'EveApi'
     );
 
     static $defaults = array(
@@ -49,6 +50,7 @@ class EveMember extends DataExtension
         return EveApi::get()->filter('MemberID', $this->owner->ID);
     }
 
+    /*
     function updateCMSFields(FieldList $f)
     {
         $f->findOrMakeTab('Root.ApiKeys', 'API Keys');
@@ -59,6 +61,7 @@ class EveMember extends DataExtension
         }
         return $f;
     }
+    */
 
     function updateGroupsFromAPI()
     {
@@ -67,7 +70,14 @@ class EveMember extends DataExtension
         $groups = new ArrayList();
         if($apis) foreach($apis as $a) {
             foreach($a->ApiSecurityGroups() as $g) {
-                $groups->push($g);
+                if(!$groups->find('ID', $g->ID)) {
+                    $groups->push($g);
+                    /*
+                    if($g->parentID != 0 && !$groups->find('ID', $g->parentID)) {
+                        $groups->push($g->parent());
+                    }
+                    */
+                }
             }
         }
 
@@ -178,8 +188,11 @@ class EveMember extends DataExtension
                 if(!$FirstName_as_toon) {
                     $this->owner->FirstName = $first;
                 }
-                $this->owner->JabberUser = $this->FirstNameToJabberUser();
             }
+        }
+
+        if($this->owner->isChanged('FirstName') || $this->owner->JabberUser == '' && !$this->owner->isChanged('JabberUser')) {
+            $this->owner->JabberUser = $this->FirstNameToJabberUser();
         }
 
         if($this->owner->isChanged('NumVisit')) {

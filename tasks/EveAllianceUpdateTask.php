@@ -64,7 +64,6 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
             if(!$alliance->GroupID) $alliance->write();
 
             // remove groups for corps that are no longer in alliance
-           // $corps = EveCorp::get('EveCorp', sprintf("CorpID NOT IN '%s' AND ApiManaged = 1", implode($this->corporations, "','")));
             $corps = EveCorp::get()->exclude('CorpID', $this->corporations)->filter(array('ApiManaged' => 1, 'EveAllianceID' => $alliance->ID))
                         ->innerJoin('Group', sprintf("`Group`.`ParentID` = '%d'", $alliance->GroupID));
 
@@ -92,19 +91,6 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
             $g->Code     = $c->Ticker;
             $g->write();
 
-
-            //find or create a director group subgroup for this corp
-            /*
-            if(!$dg = Group::get_one('Group', sprintf("Code = 'directors' AND ParentID = '%d'", $g->ID))) {
-                $dg = new Group();
-                $dg->ParentID = $g->ID;
-                $dg->Title    = sprintf('Directors [%s]', $c->Ticker);
-                $dg->Code     = 'directors';
-                $dg->Ticker   = $c->Ticker;
-                $dg->write();
-            }
-            */
-
             if($c->GroupID != $g->ID) {
                 $c->GroupID = $g->ID;
                 $c->write();
@@ -117,7 +103,7 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
 
     		if($this->repeat) {
     	    	$job = new EveAllianceUpdateJob();
-    			//if(!$this->debug) singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			if(!$this->debug) singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;
