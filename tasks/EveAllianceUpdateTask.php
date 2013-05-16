@@ -74,26 +74,32 @@ class EveAllianceUpdateJob extends AbstractQueuedJob
         } else {
             $alliance = EveAlliance::get()->byID($this->allianceID);
             $corp = array_shift($this->corporations);
-            if(!$c = EveCorp::get_one('EveCorp', sprintf("CorpID = '%d'", $corp))) {
-                $c = new EveCorp();
-            }
-            $c->CorpID = $corp;
-            $c->EveAllianceID = $this->allianceID;
-            $c->write();
 
-            if($this->debug) printf(" -- %s [%s]\n", $c->CorpName, $c->Ticker);
+            if((int)$alliance->Standing >= 0) {
 
-            if(!$g = Group::get_one('Group', sprintf("ID = '%s' AND ParentID = %d", $c->GroupID, $alliance->GroupID))) {
-                $g = new Group();
-            }
-            $g->ParentID = $alliance->GroupID;
-            $g->Title    = $c->CorpName;
-            $g->Code     = $c->Ticker;
-            $g->write();
-
-            if($c->GroupID != $g->ID) {
-                $c->GroupID = $g->ID;
+                if(!$c = EveCorp::get_one('EveCorp', sprintf("CorpID = '%d'", $corp))) {
+                    $c = new EveCorp();
+                }
+                $c->CorpID = $corp;
+                $c->EveAllianceID = $this->allianceID;
                 $c->write();
+
+                if($this->debug) printf(" -- %s [%s]\n", $c->CorpName, $c->Ticker);
+
+                if(!$g = Group::get_one('Group', sprintf("ID = '%s' AND ParentID = %d", $c->GroupID, $alliance->GroupID))) {
+                    $g = new Group();
+                }
+                $g->ParentID = $alliance->GroupID;
+                $g->Title    = $c->CorpName;
+                $g->Code     = $c->Ticker;
+                $g->write();
+
+                if($c->GroupID != $g->ID) {
+                    $c->GroupID = $g->ID;
+                    $c->write();
+                }
+            } else {
+                /* TODO: delete corps + related corp groups */
             }
         }
 

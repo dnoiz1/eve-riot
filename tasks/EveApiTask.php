@@ -43,10 +43,10 @@ class EveApiJob extends AbstractQueuedJob
 	public function process()
     {
         $memberID = array_shift($this->members);
-        $m = Member::get_by_id('Member', $memberID);
+        $m = Member::get()->byID($memberID);
 
         if($m) {
-            if($this->debug) printf("processing: %s\n", $m->NickName());
+            if($this->debug) printf("processing: %s\n", $m->FirstName);
 
             if($old = EveMemberCharacterCache::get('EveMemberCharacterCache', sprintf("MemberID = %d", $m->ID))) {
                 foreach($old as $o) {
@@ -56,16 +56,14 @@ class EveApiJob extends AbstractQueuedJob
             try {
                 if($apis = $m->ApiKeys()) {
                     foreach($apis as $a) {
-                        if($errors = $a->isValid()) {
-                            if(is_array($errors)) {
-                                foreach($errors as $e) {
-                                    if($e->Reason == 'Key has expired. Contact key owner for access renewal.'
-                                     || $e->Reason == 'Authentication failure.') {
-                                        $a->delete();
-                                    }
+                        if(!$a->isValid()) {
+                            foreach($a->APIErrors() as $e) {
+                                if($e->Reason == 'Key has expired. Contact key owner for access renewal.'
+                                || $e->Reason == 'Authentication failure.') {
+                                    $a->delete();
                                 }
-                                continue;
                             }
+                            continue;
                         }
                         foreach($a->Characters() as $c) {
                             //incase they have multiple apis for the same account.. people is tards
@@ -103,7 +101,7 @@ class EveApiJob extends AbstractQueuedJob
 
     		if($this->repeat) {
     	    	$job = new EveApiJob();
-    			singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
+    			if(!$this->debug) singleton('QueuedJobService')->queueJob($job, date('Y-m-d H:i:s', time() + $this->repeat));
         	}
 
     		$this->isComplete = true;

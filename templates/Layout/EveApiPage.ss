@@ -7,8 +7,8 @@
             <p>
                 <label>Active Groups:</label>
 
-                <% if $CurrentMember.Groups %>
-                    <% loop $CurrentMember.Groups %>
+                <% if $Groups %>
+                    <% loop $Groups %>
                         $Title<% if last %><% else %>, <% end_if %>
                     <% end_loop %>
                 <% end_if %>

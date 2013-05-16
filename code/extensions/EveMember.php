@@ -21,16 +21,18 @@ class EveMember extends DataExtension
         'JabberAutoConnect' => 1
     );
 
-    function FirstNameToJabberUser($suffix = false)
+    function FirstNameToJabberUser($suffix = 0)
     {
-        $nn = strtolower($this->owner->FirstName);
+        $nn = $this->owner->FirstName;
+        $nn = strtolower($nn);
         $nn = trim($nn);
         $nn = str_replace(' ', '_', $nn);
         $nn = preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
-        if($suffix) $nn .= $suffix;
+        if($suffix > 0) $nn .= $suffix;
 
-        if(Member::get_one('Member', sprintf("JabberUser = '%s'", Convert::raw2sql($nn)))) {
-            return $this->FirstNameToJabberUser($suffix++);
+        //if(Member::get_one('Member', sprintf("JabberUser = '%s' AND ID <> %d", Convert::raw2sql($nn), $this->owner->ID))) {
+        if($m = Member::get()->filter('JabberUser', Convert::raw2sql($nn))->exclude('ID', $this->owner->ID)) {
+            if($m->count() > 0) $nn = $this->FirstNameToJabberUser($suffix+1);
         }
         return $nn;
     }
@@ -164,7 +166,7 @@ class EveMember extends DataExtension
 
     function FirstNameCitizen()
     {
-        $this->FirstName = sprintf("CoalitionCitizen%d%d", date('U'), rand(1000,9999));
+        $this->owner->FirstName = sprintf("CoalitionCitizen%d%d", date('U'), rand(1000,9999));
     }
 
     function onBeforeWrite()
@@ -187,11 +189,15 @@ class EveMember extends DataExtension
                 //if(!$FirstName_as_toon) $this->owner->FirstName = $this->owner->FirstName;
                 if(!$FirstName_as_toon) {
                     $this->owner->FirstName = $first;
+                    foreach(Member::get()->filter('FirstName', $first)->exclude('ID', $this->owner->ID) as $imposter) {
+                        $imposter->FirstNameCitizen();
+                        $imposter->write();
+                    }
                 }
             }
         }
 
-        if($this->owner->isChanged('FirstName') || $this->owner->JabberUser == '' && !$this->owner->isChanged('JabberUser')) {
+        if($this->owner->isChanged('FirstName') || ($this->owner->JabberUser == '')) {// == '' && !$this->owner->isChanged('JabberUser'))) {
             $this->owner->JabberUser = $this->FirstNameToJabberUser();
         }
 

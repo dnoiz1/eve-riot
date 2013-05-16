@@ -11,7 +11,8 @@ class EveAlliance extends DataObject
         'AllianceID'        => 'Int',
         'Ticker'            => 'Varchar(5)',
         'ExecutiveCorpID'   => 'Int',
-        'MemberCount'       => 'Int'
+        'MemberCount'       => 'Int',
+        'Standing'          => "Enum('-10, -5, -2.5, 0, 2.5, 5, 10', 10)"
     );
 
     private static $has_many = array(
@@ -26,7 +27,8 @@ class EveAlliance extends DataObject
         'AllianceName',
         'Ticker',
         'ExecutiveCorpName',
-        'MemberCount'
+        'MemberCount',
+        'Standing'
     );
 
     static $field_labels = array(

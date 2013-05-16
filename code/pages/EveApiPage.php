@@ -88,7 +88,9 @@ JS
         return new DataObjectset($gs);
 */
         if($m = Member::CurrentUser()) {
-            return $m->Groups();
+            $exclude = EveAlliance::get()->exclude('Standing',  array('2.5', '5', '10'));
+            $exclude = ($exclude->count() > 0) ? $exclude->Map('GroupID')->Keys() : array();
+            return $m->Groups()->exclude('ID', $exclude)->exclude('ParentID', $exclude);
         }
         return false;
 
