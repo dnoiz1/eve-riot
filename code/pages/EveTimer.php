@@ -105,6 +105,15 @@ class EveTimerPage extends Page {
 class EveTimerPage_Controller extends Page_Controller {
     function init()
     {
+        Requirements::CSS('eacc/thirdparty/datatables/datatables.css');
+        Requirements::CustomCSS(<<<CSS
+            .table td { vertical-align: middle !important; }
+            .table th:first-child { width: 33px !important; }
+CSS
+        );
+
+
+        Requirements::JavaScript('eacc/thirdparty/datatables/jquery.dataTables.min.js');
         Requirements::JavaScript('eacc/thirdparty/jquery.countdown.min.js');
         Requirements::CustomScript(<<<JS
             $(function(){
@@ -116,6 +125,17 @@ class EveTimerPage_Controller extends Page_Controller {
                         description: ''
                     });
                 });
+
+                $('#new-timers').dataTable({
+                    "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                    "bPaginate": false
+                });
+
+                //$('#old-timers').dataTable({
+                //    "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
+                //    "bPaginate": false
+                //});
+
             });
 JS
         );

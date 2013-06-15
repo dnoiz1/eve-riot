@@ -36,6 +36,10 @@ class EvePermissions extends SiteTree implements PermissionProvider
             'MUMBLE' => array(
                 'name'  =>  'Allow Mumble Access',
                 'category' => 'External Services'
+            ),
+            'TEAMSPEAK' => array(
+                'name'  =>  'Allow Troll Teamspeak Access',
+                'category' => 'External Services'
             )
         );
     }

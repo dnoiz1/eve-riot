@@ -4,7 +4,8 @@ class EveMemberTeamspeakPage extends Page {
         'Hostname'  => 'Varchar(255)',
         'Port'      => 'Int',
         'Username'  => 'Varchar(255)',
-        'Password'  => 'Varchar(255)'
+        'Password'  => 'Varchar(255)',
+        'TeamspeakGroupID'   => 'Int',
     );
 
     static $defaults = array(
@@ -15,11 +16,12 @@ class EveMemberTeamspeakPage extends Page {
     {
         $f = parent::getCMSFields();
         $f->findOrMakeTab('Root.Teamspeak', 'Teamspeak');
-        $f->addFieldsToTab('Root.Teamspeak', new FieldSet(
+        $f->addFieldsToTab('Root.Teamspeak', new FieldList(
             new TextField('Hostname', 'Hostname'),
             new NumericField('Port', 'Port'),
             new Textfield('Username', 'ServerQuery User'),
-            new PasswordField('Password', 'ServerQuery Password')
+            new PasswordField('Password', 'ServerQuery Password'),
+            new NumericField('TeamspeakGroupID', 'Teamspeak Group ID')
         ));
         return $f;
     }
@@ -74,9 +76,10 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             if(strlen($v) > 0) {
                 $ret[] = str_replace("\r", '', $v);// = $this->ServerQueryUnescape($v);
                 if(strpos($v, "error id") !== false) {
-                    preg_match("/id=(\d+) msg=(.*?)$/ims", $match);
-                    if($match[1] != 0) {
-                        throw new Exception(sprintf("Error: %d ServerQuery::%s", $match[1], $this->ServerQueryUnescape($match[2])));
+                    if(preg_match("/id=(\d+) msg=(.*?)$/ims", $v, $match) !== false) {
+                        if($match[1] != 0) {
+                            throw new Exception(sprintf("Error: %d ServerQuery::%s", $match[1], $this->ServerQueryUnescape($match[2])));
+                        }
                     }
                 }
             }
@@ -88,22 +91,29 @@ class EveMemberTeamspeakPage_controller extends Page_controller
     function TeamspeakForm()
     {
         $m = Member::currentUser();
-        if(!$m) return new Form();
+        if(!$m) return Form::create();
 
-        $f = new FieldSet();
-        if($m->TeamSpeakIdentity) {
-            $f->push(new ReadOnlyField('', 'Current Teamspeak Identity', $m->TeamSpeakIdentity));
-        }
-        $a = new FieldSet(
-            new FormAction('TeamspeakUpdate', 'click here when you are connected')
+
+        $f = FieldList::create(
+            ReadOnlyField::create('sv', 'Server Address', 'ts.evetroll.com')->addExtraClass('strong'),
+            ReadOnlyField::create('fn', 'Connect to Teamspeak with your name as', $m->FirstName)->addExtraClass('strong')
         );
+        if($m->TeamSpeakIdentity) {
+            $f->push(ReadOnlyField::create('', 'Current Teamspeak Identity', $m->TeamSpeakIdentity)->addExtraClass('strong'));
+        }
 
-        $form = new Form($this, 'TeamspeakForm', $f, $a);
+        $form = BootstrapForm::create($this, 'TeamspeakForm', $f,
+            FieldList::create(
+                FormAction::create('TeamspeakUpdate', 'Click here when you are connected')
+                    ->addExtraClass('btn-primary pull-right')
+            )
+        )->addWell();
+
         if(($msg = Session::get('Eve.Profile.Teamspeak.Updated')) && Session::get('Eve.Profile.Teamspeak.Updated') != 1) {
-            $form->setMessage(sprintf("Error: %s", $msg), 'bad');
+            $form->setMessage(sprintf("Error: %s", $msg), 'alert-error');
             Session::clear('Eve.Profile.Teamspeak.Updated');
         } elseif(Session::get('Eve.Profile.Teamspeak.Updated')) {
-            $form->setMessage('Teamspeak Roles and Identity Updated Successfully', 'good');
+            $form->setMessage('Teamspeak Roles and Identity Updated Successfully', 'alert-success');
             Session::clear('Eve.Profile.Teamspeak.Updated');
         }
 
@@ -153,7 +163,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
             $client = array();
             foreach(explode(" ", $client_info[0]) as $ci) {
-                list($k, $v) = preg_split('/=([^ ]+)/', $ci, -1, PREG_SPLIT_DELIM_CAPTURE);
+                @list($k, $v) = preg_split('/=([^ ]+)/', $ci, -1, PREG_SPLIT_DELIM_CAPTURE);
                 $client[$k] = $this->ServerQueryUnescape($v);
             }
 
@@ -162,15 +172,6 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             $client_db_id = $client['client_database_id'];
             $client_server_groups = explode(",", $client['client_servergroups']);
 
-            // find out which groups have 'jabber access'
-            $groups = array();
-            foreach($m->Groups() as $g) {
-                if($g->hasPerm('TEAMSPEAK') && $g->Ticker
-                     //i am a bad person, and i should feel bad.
-                  || $g->Code == 'directors' && $g->ParentID == '41') {
-                    $groups[] = $g;
-                }
-            }
 
             $server_groups = $this->ServerQueryCommand('servergrouplist');
             $server_groups = explode("|", $server_groups[0]);
@@ -186,27 +187,25 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             $client_groups_required = array();
 
             foreach($sgroups as $si => $server_group) {
-                foreach($groups as $group) {
-                    if($server_group['name'] == $group->Ticker || ($server_group['name'] == 'Directors' && $group->Code == 'directors' && $group->ParentID == 41)) {
-                        $client_groups_required[] = $server_group['sgid'];
-                        $server_group_clients = $this->ServerQueryCommand('servergroupclientlist', array('sgid' => $server_group['sgid']));
-                        $server_group_clients = $server_group_clients[0];
-                        if(strpos($server_group_clients, "|") !== false) {
-                            $server_group_clients = explode("|", $server_group_clients);
-                        } else {
-                            $server_group_clients = array($server_group_clients);
-                        }
-                        $server_group_client_db_ids = array();
-                        foreach($server_group_clients as $sgc) {
-                            list($k, $cbid) = explode("=", $sgc);
-                            $server_group_client_db_ids[] = $cbid;
-                        }
-                        if(!in_array($client_db_id, $server_group_client_db_ids)) {
-                            $this->ServerQueryCommand('servergroupaddclient', array(
-                                'sgid'   =>  $server_group['sgid'],
-                                'cldbid' =>  $client_db_id
-                            ));
-                        }
+               if($server_group['sgid'] == $this->TeamspeakGroupID) {
+                    $client_groups_required[] = $server_group['sgid'];
+                    $server_group_clients = $this->ServerQueryCommand('servergroupclientlist', array('sgid' => $server_group['sgid']));
+                    $server_group_clients = $server_group_clients[0];
+                    if(strpos($server_group_clients, "|") !== false) {
+                        $server_group_clients = explode("|", $server_group_clients);
+                    } else {
+                        $server_group_clients = array($server_group_clients);
+                    }
+                    $server_group_client_db_ids = array();
+                    foreach($server_group_clients as $sgc) {
+                        list($k, $cbid) = explode("=", $sgc);
+                        $server_group_client_db_ids[] = $cbid;
+                    }
+                    if(!in_array($client_db_id, $server_group_client_db_ids)) {
+                        $this->ServerQueryCommand('servergroupaddclient', array(
+                            'sgid'   =>  $server_group['sgid'],
+                            'cldbid' =>  $client_db_id
+                        ));
                     }
                 }
             }
@@ -227,7 +226,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
             Session::set('Eve.Profile.Teamspeak.Updated', $e->getMessage());
         }
 
-        if($identity) {
+        if(isset($identity)) {
             $m->TeamSpeakIdentity = $identity;
         } else {
             $m->TeamSpeakIdentity = false;

@@ -1,15 +1,14 @@
-<div class="content-container">	
-	<article>
-		<h1>$Title</h1>
-		<div class="content">
-            <% if CurrentMember.AllowedJabber %>
-                $Content
-                $JabberPingForm
-            <% else %>
-                You do not meet the current requirements to access Jabber
-            <% end_if %>
-        </div>
-	</article>
-</div>
+<div class="row-fluid">
+    <div class="span12 content" role="main">
+        <h1>$Title</h1>
 
-<% include SideBar %>
+        <% if CurrentMember.AllowedJabber %>
+            $Content
+            $JabberPingForm
+        <% else %>
+            You do not meet the current requirements to access Jabber
+        <% end_if %>
+
+    </div>
+
+</div>

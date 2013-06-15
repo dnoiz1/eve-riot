@@ -97,29 +97,23 @@ class EveJabberPingPage_controller extends Page_controller
                     "Reimbursable:\n".
                     "Why:";
 
-
-        $textarea = new TextAreaField('JabberMessage', 'Message', $template);
-        $textarea->setRows(10);
-        $textarea->setColumns(400);
-
-        $f = new FieldList(
-            //new DropDownField('Destination', 'Group to Ping', $dst),
-            $textarea
-        );
-
-        $a = new FieldList(
-            new FormAction('JabberPing', 'Send')
-        );
-
-        $v = new RequiredFields('JabberMessage');
-
-        $form = new Form($this, 'JabberPingForm', $f, $a, $v);
-
+        $form = BootstrapForm::create($this, 'JabberPingForm',
+            FieldList::create(
+                //new DropDownField('Destination', 'Group to Ping', $dst),
+                TextAreaField::create('JabberMessage', 'Message', $template)
+                    ->setRows(11)
+                    ->addExtraClass('input-block-level')
+            ),
+            FieldList::create(
+                FormAction::create('JabberPing', 'Send')->setStyle("primary btn-large pull-right")
+            ),
+            RequiredFields::create('JabberMessage')
+        )->addWell();
 
         if(Session::get('Eve.JabberPing.Sent') && Session::get('Eve.JabberPing.Sent') != 1) {
-            $form->setMessage(sprintf("Error: %s", Session::get('Eve.JabberPing.Sent')), 'bad');
+            $form->setMessage(sprintf("Error: %s", Session::get('Eve.JabberPing.Sent')), 'alert alert-error');
         } elseif(Session::get('Eve.JabberPing.Sent')) {
-            $form->setMessage('Message Sent', 'good');
+            $form->setMessage('Message Sent', 'alert alert-success');
         }
         Session::clear('Eve.JabberPing.Sent');
 

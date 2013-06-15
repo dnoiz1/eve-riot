@@ -64,6 +64,10 @@ class EveApi extends DataObject {
             }
             */
 
+            if(EveBlacklistedApi::get_one('EveBlacklistedApi', sprintf("`KeyID` = '%s'", $this->KeyID))) {
+                return new ArrayList(array(array('Reason' => 'This API key is Blacklisted. delete it from CCP and from here')));
+            }
+
             $this->ale->setKey($this->KeyID, $this->vCode);
             $info = $this->ale->Account->APIKeyInfo();
 

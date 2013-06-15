@@ -33,18 +33,18 @@ JS
 
     function APIForm()
     {
-        $f = new FieldList(
-            new NumericField('KeyID'),
-            new TextField('vCode')
-        );
+        return BootstrapForm::create($this, 'APIForm',
+            FieldList::create(
+                NumericField::create('KeyID'),
+                TextField::create('vCode')->setSize('xxlarge')
+            ),
 
-        $a = new FieldList(
-            new FormAction('addAPI', 'Submit')
-        );
+            FieldList::create(
+               FormAction::create('addAPI', 'Submit')->addExtraClass('btn-primary pull-right')
+            ),
 
-        $v = new RequiredFields('KeyID', 'vCode');
-
-        return new Form($this, 'APIForm', $f, $a, $v);
+            RequiredFields::create('KeyID', 'vCode')
+        )->addWell();
     }
 
     function addAPI($data, $form)

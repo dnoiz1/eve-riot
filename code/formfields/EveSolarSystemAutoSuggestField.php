@@ -51,10 +51,11 @@ class EveSolarSystemAutoSuggestField extends TextField
         $h = parent::FieldHolder($properties);
         $h .= <<<JS
             <script type="text/javascript">
-            if(typeof EveSolarSystemAutoSuggestLoad !== 'object') {
-                var EveSolarSystemAutoSuggestLoad = [];
-            }
-            EveSolarSystemAutoSuggestLoad.push(function(){
+//            if(typeof EveSolarSystemAutoSuggestLoad !== 'object') {
+//                var EveSolarSystemAutoSuggestLoad = [];
+//            }
+//            EveSolarSystemAutoSuggestLoad.push(
+            jQuery(function(){
                 var options_{$id} = {
                     script: function() { return '/eveStaticData/solarSystems/' + jQuery('#{$id}_text').val(); },
                     json: true,
@@ -66,8 +67,10 @@ class EveSolarSystemAutoSuggestField extends TextField
 
                 var as_{$id} = new bsn.AutoSuggest('{$id}_text', options_{$id});
             });
+//            );
             //.. this loads before jquery, need a better fix -noiz
-            window.onload = function(){ jQuery(EveSolarSystemAutoSuggestLoad).each(function(i,f){ f(); }); }
+            //window.onload = function(){ jQuery(EveSolarSystemAutoSuggestLoad).each(function(i,f){ f(); }); }
+            //jQuery(function(){ jQuery(EveSolarSystemAutoSuggestLoad).each(function(i,f){ f(); }); });
             </script>
 JS;
         return $h;

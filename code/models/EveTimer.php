@@ -21,6 +21,26 @@ class EveTimer extends DataObject
         'AddedBy' => 'Member'
     );
 
+    static $api_access = array(
+        'view' => array(
+            'TimerEnds',
+            'TargetSolarSystem',
+            'Planet',
+            'Moon',
+            'Friendly',
+            'Defended',
+            'Timer',
+            'Owner',
+            'Type',
+            'FormUpSolarSystem',
+            'FurtherInfo',
+            'Hidden'
+        ),
+        'edit' => array()
+    );
+
+//    static $api_access = true;
+
     static $summary_fields = array(
         'TimerEnds',
         'Type',
@@ -57,6 +77,7 @@ class EveTimer extends DataObject
         $date->getDateField()->setConfig('showcalendar', true);
         $date->getDateField()->setConfig('dateformat', 'dd/MM/YYYY');
         $date->setTimeField(TimeDropdownField::create('TimerEnds[time]', ''));
+        $date->getTimeField()->setConfig('timeformat', 'HH:mm');
         $f->ReplaceField('TimerEnds', $date);
 
 /*
@@ -74,7 +95,7 @@ class EveTimer extends DataObject
         $f->replaceField('TargetSolarSystem', $targetSolarSystem);
         $f->replaceField('FormUpSolarSystem', $formUpSolarSystem);
 
-        $f->removeByName('AddedBy');
+        $f->removeByName('AddedByID');
 
         return $f;
     }
