@@ -1,17 +1,25 @@
 <div class="row">
+    <div class="span9 pull-right">
+        <h1>$Title</h1>
+    </div>
+</div>
+
+<div class="row">
     <% include SideBar %>
 
-    <div class="span8 content" role="main">
-        <h1>$Title</h1>
+    <div class="span9 content" role="main">
         $Content
         <p>
-            <label>Active Groups:</label>
+            <strong>Active Groups:</strong>
 
             <% if $Groups %>
                 <% loop $Groups %>
                     $Title<% if last %><% else %>, <% end_if %>
                 <% end_loop %>
             <% end_if %>
+        </p>
+        <p>
+            <strong>Coalition Standing:</strong> $CurrentMember.Standing
         </p>
         <table class="table table-striped table-bordered table-condensed">
             <thead>

@@ -81,20 +81,22 @@ class EveStaticData extends Page_Controller
 
     public function solarSystems(SS_HTTPRequest $request)
     {
+        Requirements::clear();
+
         $name = $request->param('ID');
-        //if(!$name) return $this->httpError(404);
+        if(!$name) return Convert::array2json(array());
 
-        $results = mapSolarSystems::get('mapSolarSystems', sprintf("solarSystemName LIKE '%s%%'", Convert::raw2sql($name)), '', '', 6);
+        $results = mapSolarSystems::get()->filter('solarSystemName:StartsWith', $name)->limit(6);
+        $json = array();
 
-        $json = array('results' => array());
-
-        if($results) foreach($results as $r) {
-            $json['results'][] = array(
+        foreach($results as $r) {
+            $json[] = array(
                 'id' => $r->solarSystemID,
                 'value' => $r->solarSystemName,
-                'info'  => $r->Region()->regionName
+                'region'  => $r->Region()->regionName
             );
         }
+
         return Convert::array2json($json);
     }
 /*

@@ -2,19 +2,16 @@
 
 /* this is a field type that stores int solarsystemid
  * by displaying a textfield with autosuggest
+ * TODO: generic js for initializing typeheads
  */
 
 class EveSolarSystemAutoSuggestField extends TextField
 {
-    function __construct($name, $title = null, $value = '', $maxLength = null, $form = null)
-    {
-        return parent::__construct($name, $title, $value = '', $maxLength = null, $form = null);
-    }
-
     function Field($properties = array())
     {
-        Requirements::javascript('eacc/thirdparty/autosuggest/js/bsn.AutoSuggest_2.1.3.js');
-        Requirements::css('eacc/thirdparty/autosuggest/css/autosuggest_inquisitor.css');
+        Requirements::javascript('eacc/thirdparty/hogan.min.js');
+        Requirements::javascript('eacc/thirdparty/typeahead/typeahead.min.js');
+        Requirements::css('eacc/thirdparty/typeahead/typeahead-bootstrap.css');
 
         $attributes = array(
             'class' => sprintf("%s%s", $this->class, ($this->extraClass()) ? ' '. $this->extraClass() : '')
@@ -33,7 +30,7 @@ class EveSolarSystemAutoSuggestField extends TextField
         $text_attributes['id'] = sprintf("%s_text", $this->id());
         $text_attributes['name'] = sprintf("%s_text", $this->name);
 
-        $solarsystem = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->Value())));
+        $solarsystem = mapSolarSystems::get()->byID(Convert::raw2sql($this->Value()));
         $text_attributes['value'] = ($solarsystem) ? $solarsystem->solarSystemName : '';
 
         $text_attributes['type'] = 'text';
@@ -46,33 +43,43 @@ class EveSolarSystemAutoSuggestField extends TextField
 
     function FieldHolder($properties = array())
     {
-        $id = $this->id();
-
         $h = parent::FieldHolder($properties);
-        $h .= <<<JS
-            <script type="text/javascript">
-//            if(typeof EveSolarSystemAutoSuggestLoad !== 'object') {
-//                var EveSolarSystemAutoSuggestLoad = [];
-//            }
-//            EveSolarSystemAutoSuggestLoad.push(
-            jQuery(function(){
-                var options_{$id} = {
-                    script: function() { return '/eveStaticData/solarSystems/' + jQuery('#{$id}_text').val(); },
-                    json: true,
-                    maxentries: 6,
-                    callback: function(o) { jQuery('#{$id}').val(o.id); },
-                    timeout: 10000000,
-                    offsety: -13
-                }
-
-                var as_{$id} = new bsn.AutoSuggest('{$id}_text', options_{$id});
-            });
-//            );
-            //.. this loads before jquery, need a better fix -noiz
-            //window.onload = function(){ jQuery(EveSolarSystemAutoSuggestLoad).each(function(i,f){ f(); }); }
-            //jQuery(function(){ jQuery(EveSolarSystemAutoSuggestLoad).each(function(i,f){ f(); }); });
-            </script>
+        $id = $this->id();
+        $js = <<<JS
+                $('input#{$id}_text').typeahead({
+                    remote: '/eveStaticData/solarSystems/%QUERY',
+                    template: [
+                        '<p class="tt-system-value">{{value}}</p>',
+                        '<p class="tt-system-region">{{region}}</p>'
+                    ].join(''),
+                    engine: Hogan
+                });
+                $('input#{$id}_text').on('typeahead:selected typeahead:autocompleted', function(o, data){
+                    $('input#{$id}').val(data.id);
+                });
+                $('input#{$id}_text').on('blur', function(e){
+                    $.get('/eveStaticData/solarSystems/' + $('input#{$id}_text').val(), function(data){
+                        if(data.length == 0) {
+                            $('input#{$id}_text').val('');
+                            $('input#{$id}').val('');
+                        } else {
+                            $('input#{$id}_text').val(data[0].value);
+                            $('input#{$id}').val(data[0].id);
+                        }
+                    }, 'json');
+                });
 JS;
+
+        if(Controller::Curr() instanceof ModelAdmin && Director::is_ajax()) {
+            $h .= <<<JS
+                <script type="text/javascript">
+                    (function($){{$js}})(jQuery);
+                </script>
+JS;
+        } else {
+            Requirements::CustomScript('jQuery(function($){' . $js . '});');
+        }
+
         return $h;
     }
 }

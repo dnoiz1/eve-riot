@@ -79,7 +79,7 @@ class EveTimerPage extends Page {
 
     function NextTimer()
     {
-        $filter = 'TimerEnds > NOW() AND Hidden = 0';
+        $filter = 'TimerEnds > NOW() - INTERVAL 30 MINUTE AND Hidden = 0';
         if($rf = $this->RegionFilter()) $filter = sprintf("%s AND %s", $filter, $rf);
         if($tf = $this->TypesFilter()) $filter = sprintf("%s AND %s", $filter, $tf);
         return EveTimer::get_one('EveTimer', $filter);
@@ -87,7 +87,7 @@ class EveTimerPage extends Page {
 
     function Timers()
     {
-        $filter = 'TimerEnds > NOW() AND Hidden = 0';
+        $filter = 'TimerEnds > NOW() - INTERVAL 30 MINUTE AND Hidden = 0';
         if($rf = $this->RegionFilter()) $filter = sprintf("%s AND %s", $filter, $rf);
         if($tf = $this->TypesFilter()) $filter = sprintf("%s AND %s", $filter, $tf);
         return EveTimer::get('EveTimer', $filter);
@@ -95,7 +95,7 @@ class EveTimerPage extends Page {
 
     function PastTimers()
     {
-        $filter = 'TimerEnds BETWEEN NOW() - INTERVAL 2 DAY AND NOW() AND Hidden = 0';
+        $filter = 'TimerEnds BETWEEN NOW() - INTERVAL 2 DAY AND NOW() - INTERVAL 30 MINUTE AND Hidden = 0';
         if($rf = $this->RegionFilter()) $filter = sprintf("%s AND %s", $filter, $rf);
         if($tf = $this->TypesFilter()) $filter = sprintf("%s AND %s", $filter, $tf);
         return EveTimer::get('EveTimer', $filter);
@@ -103,42 +103,71 @@ class EveTimerPage extends Page {
 }
 
 class EveTimerPage_Controller extends Page_Controller {
+
     function init()
     {
+
         Requirements::CSS('eacc/thirdparty/datatables/datatables.css');
         Requirements::CustomCSS(<<<CSS
             .table td { vertical-align: middle !important; }
-            .table th:first-child { width: 33px !important; }
 CSS
         );
 
 
         Requirements::JavaScript('eacc/thirdparty/datatables/jquery.dataTables.min.js');
-        Requirements::JavaScript('eacc/thirdparty/jquery.countdown.min.js');
         Requirements::CustomScript(<<<JS
             $(function(){
-                $('.countdown').each(function(k,v){
-                    ts = parseInt($(this).text());
-                    $(this).countdown({
-                        until: new Date(ts * 1000),
-                        compact: true,
-                        description: ''
-                    });
+                $('#showAddTimerForm').click(function() {
+                    $('#AddTimerFormWrapper').slideDown("slow");
+                    $(this).slideUp("slow");
                 });
 
-                $('#new-timers').dataTable({
-                    "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-                    "bPaginate": false
+                $('.timers').each(function(i,e){
+                    if($(e).find('tr td').length > 1) {
+                        $(e).dataTable({
+                            "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i>>",
+                            "bPaginate": false,
+                            "aaSorting": []
+                        });
+                    }
                 });
-
-                //$('#old-timers').dataTable({
-                //    "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-                //    "bPaginate": false
-                //});
-
             });
 JS
         );
         return parent::init();
+    }
+
+    function AddTimerForm()
+    {
+        $timer = singleton('EveTimer');
+
+        $types = array_diff($timer->dbObject('Type')->enumValues(), $this->HiddenTypes->getvalue());
+
+        return BootstrapForm::Create($this, 'AddTimerForm',
+            FieldList::create(
+                BootstrapDateTimeField::create('TimerEnds'),
+                EveSolarSystemAutoSuggestField::create('TargetSolarSystem', 'Solar System'),
+                NumericField::create('Planet'),
+                NumericField::create('Moon'),
+                ChosenDropDownField::create('Type', 'Type', $types),
+                ChosenDropDownField::create('Faction', 'Tower Faction', $timer->dbObject('Faction')->enumValues()),
+                ChosenDropDownField::create('Size', 'Tower Size', $timer->dbObject('Size')->enumValues()),
+                ChosenDropDownField::create('Friendly', 'Friendly', $timer->dbObject('Friendly')->enumValues()),
+                ChosenDropDownField::create('Defended', 'Defended', $timer->dbObject('Defended')->enumValues()),
+                ChosenDropDownField::create('Timer', 'Timer', $timer->dbObject('Timer')->enumValues()),
+                TextField::create('Owner'),
+                TextareaField::create('FurtherInfo', 'Further Info')
+            ),
+            FieldList::create(
+                FormAction::create('nope', 'Nope'),
+                FormAction::create('cancel', 'cancel')->setStyle('danger')
+            )
+        )->addWell()->setLayout('horizontal');
+    }
+
+    function nope()
+    {
+        $this->redirectBack();
+        return;
     }
 }

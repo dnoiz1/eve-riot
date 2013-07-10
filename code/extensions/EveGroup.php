@@ -14,7 +14,7 @@ class EveGroup extends DataExtension
 
     static $summary_fields = array(
         'Title' => 'Title',
-        'ParentID' => 'Title'
+        'Parent.Title' => 'Parent Group'
     );
 
     static $searchable_fields = array(
@@ -25,5 +25,10 @@ class EveGroup extends DataExtension
     {
         $f->addFieldToTab('Root.Members', new CheckBoxField('ApiManaged', 'Managed By EVE Api?'));
         return $f;
+    }
+
+    public function EveManagedGroup()
+    {
+        return EveManagedGroup::get()->Filter('GroupID', $this->owner->ID)->limit(1)->First();
     }
 }

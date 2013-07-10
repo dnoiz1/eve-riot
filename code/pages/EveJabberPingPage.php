@@ -165,7 +165,7 @@ class EveJabberPingPage_controller extends Page_controller
         $message = str_replace("\r", '', "\n" . $message);
 
         //if($target == 0) {
-            $message = sprintf("%s\n\n>> Sent to All Online Users by %s [%s] at %s EVE time <<", $message, $m->FirstName, $m->Ticker(), date("d/m/Y H:i:s"));
+            $message = sprintf("%s\n\n>> Sent to All Online Users by %s at %s EVE time <<", $message, $m->TaggedName(), date("d/m/Y H:i:s"));
 
             $params = array(
                 'from' => $this->JabberSourceJID,

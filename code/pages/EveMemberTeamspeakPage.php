@@ -96,7 +96,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
         $f = FieldList::create(
             ReadOnlyField::create('sv', 'Server Address', 'ts.evetroll.com')->addExtraClass('strong'),
-            ReadOnlyField::create('fn', 'Connect to Teamspeak with your name as', $m->FirstName)->addExtraClass('strong')
+            ReadOnlyField::create('fn', 'Connect to Teamspeak with your name as', $m->TaggedName())->addExtraClass('strong')
         );
         if($m->TeamSpeakIdentity) {
             $f->push(ReadOnlyField::create('', 'Current Teamspeak Identity', $m->TeamSpeakIdentity)->addExtraClass('strong'));
@@ -149,7 +149,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
             $client = false;
             foreach($clients as $c) {
-                if(strtolower($c['client_nickname']) == strtolower($m->FirstName)) {
+                if(strtolower($c['client_nickname']) == strtolower($m->TaggedName())) {
                     // this is the droid we are looking for
                     $client = $c;
                 }
@@ -212,7 +212,7 @@ class EveMemberTeamspeakPage_controller extends Page_controller
 
             foreach(array_diff($client_server_groups, $client_groups_required) as $csg) {
                 //remove user from group
-                if($csg == 6) continue; //skip admins
+                if(in_array($csg, array(6, 181, 123, 159, 160, 161, 162, 163, 118, 189))) continue; //skip admins
                 $this->ServerQueryCommand('servergroupdelclient', array(
                     'sgid'      => $csg,
                     'cldbid'    => $client_db_id

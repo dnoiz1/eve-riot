@@ -45,6 +45,11 @@ class EveCorp extends DataObject
         return ($a = $this->EveAlliance()) ? $a->AllianceName : '';
     }
 
+    function EveAllianceTicker()
+    {
+        return ($a = $this->EveAlliance()) ? $a->Ticker : '';
+    }
+
     function getCMSFields()
     {
         $f = parent::getCMSFields();

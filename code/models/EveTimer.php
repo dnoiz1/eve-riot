@@ -7,13 +7,15 @@ class EveTimer extends DataObject
         'TargetSolarSystem'   => 'Int',
         'Planet'        => 'Int',
         'Moon'          => 'Int',
-        'Friendly'      => "Enum('Yes, No, N/A', 'Yes')",
-        'Defended'      => "Enum('Yes, No, N/A', 'No')",
+        'Friendly'      => "Enum('Yes, No', 'Yes')",
+        'Defended'      => "Enum('N/A, Yes, No', 'No')",
         'Timer'         => "Enum('Shield, Final, None', 'Final')",
         'Owner'         => 'Varchar(100)',
         'Type'          => "Enum('CTA, Tower, Station, iHub, TCU, SBU, PoCo, Other, Roam, Strat-Op, Alliance-Op, Major-Op', 'Tower')",
+        'Faction'       => "Enum('N/A,  Amarr, Angel, Blood, Caldari, Dark Blood, Domination, Dread Guristas, Gallente, Guristas, Minmatar, Sansha, Shadow, Serpentis, True Sansha', 'N/A')",
+        'Size'          => "Enum('N/A, Small, Medium, Large', 'N/A')",
         'FormUpSolarSystem' => 'Int',
-        'FutherInfo'    => 'Text',
+        'FurtherInfo'    => 'Text',
         'Hidden'        => 'Boolean'
     );
 
@@ -32,6 +34,8 @@ class EveTimer extends DataObject
             'Timer',
             'Owner',
             'Type',
+            'Faction',
+            'Size',
             'FormUpSolarSystem',
             'FurtherInfo',
             'Hidden'

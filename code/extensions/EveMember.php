@@ -17,6 +17,10 @@ class EveMember extends DataExtension
         'EveApi'                  => 'EveApi'
     );
 
+    static $belongs_many_many = array(
+        'EveManagedGroup' => 'EveManagedGroup'
+    );
+
     static $defaults = array(
         'JabberAutoConnect' => 1
     );
@@ -30,7 +34,6 @@ class EveMember extends DataExtension
         $nn = preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
         if($suffix > 0) $nn .= $suffix;
 
-        //if(Member::get_one('Member', sprintf("JabberUser = '%s' AND ID <> %d", Convert::raw2sql($nn), $this->owner->ID))) {
         if($m = Member::get()->filter('JabberUser', Convert::raw2sql($nn))->exclude('ID', $this->owner->ID)) {
             if($m->count() > 0) $nn = $this->FirstNameToJabberUser($suffix+1);
         }
@@ -49,7 +52,7 @@ class EveMember extends DataExtension
 
     function ApiKeys()
     {
-        return EveApi::get()->filter('MemberID', $this->owner->ID);
+        return $this->owner->EveApi();
     }
 
     /*
@@ -112,7 +115,7 @@ class EveMember extends DataExtension
         if($this->owner->chars) return $this->owner->chars;
 
         if(!$nocache) {
-           if($cache = EveMemberCharacterCache::get('EveMemberCharacterCache', sprintf("MemberID = '%d'", $this->owner->ID))) {
+           if($cache = $this->owner->EveMemberCharacterCache()) {
                 $chars = array();
                 foreach($cache as $c) {
                     $chars[] = array(
@@ -157,11 +160,49 @@ class EveMember extends DataExtension
     function Ticker()
     {
         if($cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d' AND MemberID = '%d'", $this->owner->CharacterID, $this->owner->ID))) {
-            if($corp = $cache->EveCorp()) {
-                return $corp->Ticker;
-            }
+            if($corp = $cache->EveCorp()) return $corp->Ticker;
         }
         return false;
+    }
+
+    function AllianceTicker()
+    {
+        if($cache = EveMemberCharacterCache::get_one('EveMemberCharacterCache', sprintf("CharacterID = '%d' AND MemberID = '%d'", $this->owner->CharacterID, $this->owner->ID))) {
+            if($corp = $cache->EveCorp()) return $corp->EveAllianceTicker();
+        }
+        return false;
+    }
+
+    function TaggedName()
+    {
+        $name = $this->owner->FirstName;
+
+        if($ticker = $this->Ticker()) {
+            $name = sprintf("[%s] %s", $ticker, $name);
+
+            if($alliance_ticker = $this->AllianceTicker()) {
+                $name = sprintf("[%s]%s", $alliance_ticker, $name);
+            }
+        }
+
+        return $name;
+    }
+
+    function Standing()
+    {
+        $standing = 0;
+
+        if($cache = $this->owner->EveMemberCharacterCache()) {
+            foreach($cache as $c) {
+                if($corp = $c->EveCorp()) {
+                    if($alliance = $corp->EveAlliance()) {
+                        $standing = ((float)$alliance->Standing > $standing) ? (float)$alliance->Standing : $standing;
+                    }
+                }
+            }
+        }
+
+        return $standing;
     }
 
     function FirstNameCitizen()
