@@ -1,0 +1,16 @@
+---
+Name: eacc
+After: 'framework/*','cms/*'
+---
+Member:
+    extensions:
+        - EveMember
+Group:
+    extensions:
+        - EveGroup
+SiteTree:
+    extensions:
+        - EvePage
+ContentController:
+    extensions:
+        - EvePage_controller
