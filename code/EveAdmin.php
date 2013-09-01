@@ -1,6 +1,7 @@
 <?php
 
-class EveApiAdmin extends ModelAdmin {
+class EveApiAdmin extends ModelAdmin
+{
     static $managed_models = array('EveApi');
     static $url_segment = 'api-keys';
     static $menu_title = 'API Keys';

@@ -2,12 +2,45 @@
 
 class EvePage extends DataExtension
 {
-    function __construct()
+    private static $db = array(
+        "CanViewStanding"      => 'Boolean',
+        "CanViewMinStanding"   => 'Int'
+    );
+
+    public function canView($member = null)
     {
-        parent::__construct();
+        $member = Member::CurrentUser();
+
+        if($this->owner->CanViewStanding && $member) {
+            return ($member->Standing() >= $this->owner->CanViewMinStanding);
+        } elseif($this->owner->CanViewStanding) {
+            return false;
+        }
+    }
+
+    public function updateSettingsFields(FieldList $fields)
+    {
+        //$tab = $fields->findOrMakeTab('Root.Settings');
+        $fields->addFieldsToTab('Root.Settings', FieldList::create(
+            CheckBoxField::create('CanViewStanding', 'Use Viewer Minimum Standing'),
+            //really should create a standing field with colors and niceness
+            DropDownField::create('CanViewMinStanding', 'Viewer Min Required Standing', array('-10','-5','-2.5','0','2.5','5','10'))
+        ));
+        return $fields;
+    }
+}
+
+class EvePage_controller extends Extension
+{
+    public function onAfterInit()
+    {
         Requirements::JavaScript('eacc/thirdparty/jquery.countdown.min.js');
+        Requirements::CSS('eacc/thirdparty/scrollbars/jquery.scrollbars.min.css');
+        Requirements::javascript('eacc/thirdparty/scrollbars/jquery.scrollbars.min.js');
+
         Requirements::CustomScript(<<<JS
             $(function(){
+                $("*").scrollbars();
                 $('.countdown').each(function(k,v){
                     ts = parseInt($(this).text());
                     $(this).countdown({
@@ -21,7 +54,7 @@ JS
         );
     }
 
-    function NextOpTimer()
+    public function NextOpTimer()
     {
         $m = Member::CurrentUser();
         if(!$m) return false;

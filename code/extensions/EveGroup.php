@@ -14,7 +14,7 @@ class EveGroup extends DataExtension
 
     static $summary_fields = array(
         'Title' => 'Title',
-        'Parent.Title' => 'Parent Group'
+//        'Parent.Title' => 'Parent Group'
     );
 
     static $searchable_fields = array(

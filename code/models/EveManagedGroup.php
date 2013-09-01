@@ -72,6 +72,34 @@ class EveManagedGroup extends DataObject
         }
     }
 
+    public function UpdateGroupMembers()
+    {
+        $group = $this->Group();
+        $members = $this->Members();
+
+        if($group) {
+            $group_members = $group->Members();
+            $standing_members = $this->Members()->subtract($group_members);
+
+            foreach($standing_members as $standing_member) {
+                if($standing_member->Standing() >= $this->MinStanding) {
+                    $group_members->add($standing_member);
+                } elseif($standing_member->inGroup($group->ID)) {
+                    $group_members->remove($standing_member);
+                }
+            }
+
+            /* hopefully group_members is empty by now */
+            foreach($group_members as $group_member) {
+                if($group_member->Standing() < $this->MinStanding) {
+                    $group_members->remove($group_member);
+                }
+            }
+
+            $group->write();
+        }
+    }
+
     public function MenuTitle()
     {
         return $this->Title;

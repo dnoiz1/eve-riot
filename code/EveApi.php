@@ -38,12 +38,12 @@ class EveApi extends DataObject {
 
     function Pilot()
     {
-        return ($m = Member::get_by_id('Member', (int)$this->MemberID)) ? $m->FirstName : 'Unassigned';
+        return ($m = Member::get()->byID($this->MemberID)) ? $m->FirstName : 'Unassigned';
     }
 
     function APIErrors()
     {
-        if(!$this->Member()) return new ArrayList(array(array('Reason' => 'No Assoc Member')));
+        if(!$this->Member()) return ArrayList::create(array(array('Reason' => 'No Assoc Member')));
 
         /* // removing leading cause of tech support queries...
         if(time() - strtotime($this->Member()->LastVisited) > (86400 * 30)) {
@@ -64,8 +64,8 @@ class EveApi extends DataObject {
             }
             */
 
-            if(EveBlacklistedApi::get_one('EveBlacklistedApi', sprintf("`KeyID` = '%s'", $this->KeyID))) {
-                return new ArrayList(array(array('Reason' => 'This API key is Blacklisted. delete it from CCP and from here')));
+            if(EveBlacklistedApi::get()->filter('KeyID', $this->KeyID)->Count() > 0) {
+                return ArrayList::create(array(array('Reason' => 'This API key is Blacklisted. delete it from CCP and from here')));
             }
 
             $this->ale->setKey($this->KeyID, $this->vCode);
@@ -126,7 +126,7 @@ class EveApi extends DataObject {
         } catch(Exception $e) {
             $errors[] = array('Reason' => $e->getMessage());
         }
-        return new ArrayList($errors);
+        return ArrayList::create($errors);
     }
 
     function isValid()
@@ -152,7 +152,7 @@ class EveApi extends DataObject {
             $errors[] = array('Reason' => 'Invalid Key');
         }
 
-        return (count($errors) > 0) ? new ArrayList($errors) : true;
+        return (count($errors) > 0) ? ArrayList::create($errors) : true;
     }
 
     function Characters()
@@ -176,7 +176,7 @@ class EveApi extends DataObject {
 
     function ApiSecurityGroups()
     {
-        if($this->isValid() !== true) return new ArrayList();
+        if($this->isValid() !== true) return ArrayList::create();
 
         $corps = array();
         foreach($this->Characters() as $c) {
@@ -184,9 +184,9 @@ class EveApi extends DataObject {
         }
 
         $EveCorps = EveCorp::get()->filter('CorpID', $corps);
-        $groups = Group::get()->filter(array(
-            'ID' => array_keys($EveCorps->Map('GroupID')->toArray())
-        ));
+        $groups = Group::get()->filter(
+            'ID', $EveCorps->column('GroupID')
+        );
         return $groups;
     }
 
@@ -236,7 +236,7 @@ class EveApi extends DataObject {
     function onBeforeDelete()
     {
         parent::onBeforeDelete();
-        foreach(EveMemberCharacterCache::get()->Filter(array('EveApiID' => $this->ID)) as $cache) {
+        foreach(EveMemberCharacterCache::get()->filter('EveApiID', $this->ID) as $cache) {
             $cache->delete();
         }
     }
@@ -244,7 +244,7 @@ class EveApi extends DataObject {
     function onAfterDelete()
     {
         parent::onAfterDelete();
-        $m = Member::get_by_id('Member', (int)$this->MemberID);
+        $m = Member::get()->byID($this->MemberID);
         if($m) $m->updateGroupsFromAPI();
     }
 }

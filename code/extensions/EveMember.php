@@ -5,9 +5,6 @@ class EveMember extends DataExtension
 
     private static $db = array(
         'CharacterID' => 'Int',
-        'JabberUser' => 'Varchar(255)',
-        'JabberToken' => 'Varchar(255)',
-        'JabberAutoConnect' => 'Boolean',
         'TeamSpeakIdentity' => 'Varchar(255)',
         'HasDonated'    => 'Boolean'
     );
@@ -20,30 +17,6 @@ class EveMember extends DataExtension
     static $belongs_many_many = array(
         'EveManagedGroup' => 'EveManagedGroup'
     );
-
-    static $defaults = array(
-        'JabberAutoConnect' => 1
-    );
-
-    function FirstNameToJabberUser($suffix = 0)
-    {
-        $nn = $this->owner->FirstName;
-        $nn = strtolower($nn);
-        $nn = trim($nn);
-        $nn = str_replace(' ', '_', $nn);
-        $nn = preg_replace('/[^a-zA-Z0-9_]/', '', $nn);
-        if($suffix > 0) $nn .= $suffix;
-
-        if($m = Member::get()->filter('JabberUser', Convert::raw2sql($nn))->exclude('ID', $this->owner->ID)) {
-            if($m->count() > 0) $nn = $this->FirstNameToJabberUser($suffix+1);
-        }
-        return $nn;
-    }
-
-    function AllowedJabber()
-    {
-        return Permission::checkMember($this->owner->ID, 'JABBER');
-    }
 
     function AllowedTeamspeak()
     {
@@ -217,7 +190,7 @@ class EveMember extends DataExtension
             $FirstName_as_toon = false;
             $chars = $this->Characters();
             if($chars) {
-                    foreach($chars as $c) {
+                foreach($chars as $c) {
                     if(!$first) $first = $c['name'];
                     if($c['name'] == $this->owner->FirstName) {
                         $this->owner->setField('CharacterID', (int)$c['characterID']);
@@ -238,14 +211,6 @@ class EveMember extends DataExtension
             }
         }
 
-        if($this->owner->isChanged('FirstName') || ($this->owner->JabberUser == '')) {// == '' && !$this->owner->isChanged('JabberUser'))) {
-            $this->owner->JabberUser = $this->FirstNameToJabberUser();
-        }
-
-        if($this->owner->isChanged('NumVisit')) {
-            $gen = new RandomGenerator();
-            $this->owner->JabberToken = $gen->randomToken('sha1');
-        }
         /*
         if($this->owner->isChanged('CharacterID') && $main = $this->MainCharacter()) {
             $this->owner->ForumRank = $main->Rank();

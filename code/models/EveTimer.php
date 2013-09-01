@@ -46,30 +46,29 @@ class EveTimer extends DataObject
 //    static $api_access = true;
 
     static $summary_fields = array(
-        'TimerEnds',
-        'Type',
-        'TargetSystemName',
-        'Moon',
-        'Planet',
-        'Timer',
-        'AddedByName'
+        'TimerEnds' => 'TimerEnds',
+        'Type' => 'Type',
+        'TargetSystemName' => 'TargetSystemName',
+        'Moon' => 'Moon',
+        'Planet' => 'Planet',
+        'Timer' => 'Timer',
+        'AddedBy.FirstName'   => 'AddedBy'
     );
 
     static $field_labels = array(
-        'AddedByName' => 'Added By',
-        'TargetSystemName' => 'Solar System'
+        'TargetSystemName' => 'Solar System',
+        'AddedBy'   => 'Added By'
     );
 
     static $casting = array(
-        'TargetSystemName' => 'Varchar(100)',
-        'AddedByName' => 'Varchar(100)'
+        'TargetSystem' => 'Varchar(100)'
 //        'FormUpSolarSystemName' => 'Varchar(100)',
     );
 
-    static $searchable_fields = array(
-/*        'TimerEnds',
-        'TargetSolarSystem' */
-    );
+//    static $searchable_fields = array(
+//        'TimerEnds',
+//        'TargetSolarSystem'
+//    );
 
     static $default_sort = "TimerEnds ASC";
 
@@ -84,15 +83,6 @@ class EveTimer extends DataObject
         $date->getTimeField()->setConfig('timeformat', 'HH:mm');
         $f->ReplaceField('TimerEnds', $date);
 
-/*
-        $date = DateField::create('TimerEnds[date]', 'Timer Ends (EVE Time)', $this->TimerEnds);
-        $date->setConfig('showcalendar', true);
-        $date->setConfig('dateformat', 'dd/MM/YYYY');
-
-        $time = TimeDropdownField::create('TimerEnds[time]', '&nbsp;', $this->TimerEnds);
-        $f->insertAfter($time, 'TimerEnds[date]');
-*/
-
         $targetSolarSystem = new EveSolarSystemAutoSuggestField('TargetSolarSystem', 'Target Solar System');
         $formUpSolarSystem = new EveSolarSystemAutoSuggestField('FormUpSolarSystem', 'Form Up Solar System');
 
@@ -103,26 +93,13 @@ class EveTimer extends DataObject
 
         return $f;
     }
-/*
+
     function scaffoldSearchFields()
     {
         $f = parent::scaffoldSearchFields();
-        $date = new DateTimeField('TimerEnds', 'Timer Ends');
-        $date->getDateField()->setConfig('showcalendar', true);
-        $date->getDateField()->setConfig('dateformat', 'dd/MM/YYYY');
-        $date->getTimeField()->setConfig('showdropdown', true);
-        $f->ReplaceField('TimerEnds', $date);
-
         $targetSolarSystem = new EveSolarSystemAutoSuggestField('TargetSolarSystem', 'Target Solar System');
         $f->replaceField('TargetSolarSystem', $targetSolarSystem);
         return $f;
-    }
-*/
-    function TargetRegion()
-    {
-        if($r = mapSolarSystems::get_one('mapSolarSystems', sprintf("solarSystemID = %d", Convert::raw2sql($this->TargetSolarSystem)))) {
-            return $r->Region;
-        }
     }
 
     function TargetSystem()
@@ -133,11 +110,6 @@ class EveTimer extends DataObject
     function TargetSystemName()
     {
         return ($ts = $this->TargetSystem()) ? $ts->solarSystemName : '';
-    }
-
-    function AddedByName()
-    {
-        return ($member = $this->AddedBy()) ? $member->FirstName : 'System';
     }
 
     function FormUpSystem()

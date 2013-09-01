@@ -34,7 +34,7 @@ CSS
         Requirements::JavaScript('eacc/thirdparty/datatables/jquery.dataTables.min.js');
 
 
-        if($this->Children()) {
+        if($this->Children()->Count() > 0) {
             $left_grid  = 4;
             $right_grid = 5;
         } else {
@@ -92,7 +92,7 @@ JS
 
         return $this->renderWith('Page', array(
             'Layout' => $this->renderWith('EveManagedGroupsPage_manage'),
-//            'ManageForm' => $this->ManageForm() 
+//            'ManageForm' => $this->ManageForm()
         ));
     }
 
@@ -105,9 +105,8 @@ JS
             $results = EveManagedGroup::get()
                     ->filter(array(
                         'GroupID:not'   => $member_groups,
-                        'ID:not'        => $pending_applications->column('EveManagedGroupID')
-                    ))
-                    ->exclude('MinStanding:LessThan', $m->Standing());
+                        'ID:not'        => $pending_applications->column('EveManagedGroupID'),
+                    ))->exclude('MinStanding:GreaterThan', $m->Standing());
             return $results;
         }
     }
@@ -175,9 +174,8 @@ JS
 
         if($m = Member::CurrentUser()) {
            $group = EveManagedGroup::get()->filter('RequiresApproval', true)
-                        ->exclude(array(
-                            'MinStanding:LessThan' => $m->Standing(),
-                        ))->byID($data['EveManagedGroupID']);
+                        ->exclude('MinStanding:GreaterThan', $m->Standing())
+                        ->byID($data['EveManagedGroupID']);
 
            if($group) {
                 $outstanding_applications = EveGroupApplication::get()->filter(array(
@@ -306,7 +304,7 @@ JS
         $managed_group = EveManagedGroup::get()->filter(array(
                 'GroupID:not'   => $member->Groups()->getIDList(),
                 'RequiresApproval' => false
-            ))->exclude('MinStanding:LessThan', $member->Standing())
+            ))->exclude('MinStanding:GreaterThan', $member->Standing())
             ->byID($managed_group_id);
 
         /* probably need something here about users
